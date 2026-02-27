@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PortalGuard from '../../components/PortalGuard.astro';
+---
+<BaseLayout title="Portal RFQ | Foremost Machine, Inc.">
+  <PortalGuard heading="RFQ Request">
+    <form name="portal-rfq" method="POST" data-netlify="true" netlify-honeypot="bot-field" enctype="multipart/form-data" class="space-y-4">
+      <input type="hidden" name="form-name" value="portal-rfq" />
+      <p class="hidden"><label>Don’t fill this out: <input name="bot-field" /></label></p>
+      <div class="grid gap-4 md:grid-cols-2">
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Company *</span><input required name="company" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Contact *</span><input required name="contact" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block md:col-span-2"><span class="mb-1 block text-sm text-slate-200">Part description *</span><textarea required name="part-description" rows="4" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"></textarea></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Material *</span><input required name="material" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Quantity *</span><input required name="quantity" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Timeline *</span><input required name="timeline" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block md:col-span-2"><span class="mb-1 block text-sm text-slate-200">Notes</span><textarea name="notes" rows="3" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"></textarea></label>
+        <label class="block md:col-span-2"><span class="mb-1 block text-sm text-slate-200">Optional file upload</span><input name="attachment" type="file" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+      </div>
+      <p class="text-sm text-slate-300">If file upload has issues, email CAD and drawings to <a class="text-brand-100 underline" href="mailto:rfq@foremostmachine.com">rfq@foremostmachine.com</a>.</p>
+      <button type="submit" class="rounded-md bg-brand-500 px-4 py-2 font-semibold text-white">Submit RFQ</button>
+    </form>
+  </PortalGuard>
+</BaseLayout>

@@ -1,0 +1,49 @@
+---
+interface Props {
+  heading?: string;
+}
+
+const { heading = 'Approved Customer Portal' } = Astro.props;
+---
+
+<section class="section-shell">
+  <div class="card">
+    <p class="text-xs uppercase tracking-[0.2em] text-brand-100">Private Area</p>
+    <h1 class="mt-3 text-3xl font-semibold text-white">{heading}</h1>
+    <p class="mt-3 text-slate-300">For approved commercial customers only.</p>
+    <div id="portal-content" class="mt-8 hidden">
+      <slot />
+    </div>
+    <p id="portal-loading" class="mt-6 text-slate-300">Checking portal access…</p>
+  </div>
+</section>
+
+<script is:inline>
+  const sessionKey = 'foremost_portal_session';
+  const maxAgeMs = 1000 * 60 * 60 * 8;
+  const raw = localStorage.getItem(sessionKey);
+  const loadingEl = document.getElementById('portal-loading');
+  const contentEl = document.getElementById('portal-content');
+
+  const clearAndRedirect = () => {
+    localStorage.removeItem(sessionKey);
+    window.location.href = '/portal-login';
+  };
+
+  if (!raw) {
+    clearAndRedirect();
+  } else {
+    try {
+      const session = JSON.parse(raw);
+      const expired = Date.now() - session.timestamp > maxAgeMs;
+      if (session.authenticated !== true || expired) {
+        clearAndRedirect();
+      } else {
+        if (loadingEl) loadingEl.classList.add('hidden');
+        if (contentEl) contentEl.classList.remove('hidden');
+      }
+    } catch {
+      clearAndRedirect();
+    }
+  }
+</script>

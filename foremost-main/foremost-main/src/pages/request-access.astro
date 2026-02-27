@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Request Access | Foremost Machine, Inc." description="Request commercial account access for Foremost Machine, Inc.">
+  <section class="section-shell">
+    <h1 class="text-4xl font-bold text-white">Request Access</h1>
+    <p class="mt-3 max-w-3xl text-slate-300">Complete this form for commercial account review. We manually approve qualified business customers and send access details by email.</p>
+
+    <form name="request-access" method="POST" data-netlify="true" netlify-honeypot="bot-field" action="/request-access-success" class="card mt-8 space-y-4">
+      <input type="hidden" name="form-name" value="request-access" />
+      <p class="hidden"><label>Don’t fill this out: <input name="bot-field" /></label></p>
+
+      <div class="grid gap-4 md:grid-cols-2">
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Business legal name *</span><input required name="business-legal-name" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Website *</span><input required name="website" type="url" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block md:col-span-2"><span class="mb-1 block text-sm text-slate-200">Business address *</span><input required name="business-address" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Contact name *</span><input required name="contact-name" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Title / role *</span><input required name="title-role" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Email *</span><input required name="email" type="email" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block"><span class="mb-1 block text-sm text-slate-200">Phone *</span><input required name="phone" type="tel" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
+        <label class="block md:col-span-2"><span class="mb-1 block text-sm text-slate-200">Intended order volume *</span>
+          <select required name="intended-order-volume" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2">
+            <option value="">Select one</option>
+            <option>$1–5k/mo</option>
+            <option>$5–25k/mo</option>
+            <option>$25k+/mo</option>
+            <option>Not sure yet</option>
+          </select>
+        </label>
+        <label class="block md:col-span-2"><span class="mb-1 block text-sm text-slate-200">Typical parts/materials *</span><textarea required name="typical-parts-materials" rows="5" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2"></textarea></label>
+      </div>
+      <label class="flex items-start gap-3 text-sm text-slate-200">
+        <input required type="checkbox" name="commercial-only-acknowledgement" class="mt-1" />
+        <span>I acknowledge Foremost Machine, Inc. works exclusively with commercial accounts and may decline consumer/hobby requests.</span>
+      </label>
+      <button type="submit" class="rounded-md bg-brand-500 px-5 py-3 font-semibold text-white">Submit Request</button>
+    </form>
+  </section>
+</BaseLayout>

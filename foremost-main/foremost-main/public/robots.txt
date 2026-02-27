@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /portal
+Disallow: /portal/
+
+Sitemap: https://foremostmachine.com/sitemap-index.xml

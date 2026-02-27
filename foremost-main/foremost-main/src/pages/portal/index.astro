@@ -1,0 +1,19 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PortalGuard from '../../components/PortalGuard.astro';
+---
+<BaseLayout title="Portal | Foremost Machine, Inc.">
+  <PortalGuard heading="Approved Customer Portal">
+    <p class="text-slate-300">Welcome to the private commercial portal.</p>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+      <a href="/portal/rfq" class="rounded-md border border-slate-600 p-4 hover:border-brand-500">
+        <h2 class="text-xl font-semibold text-white">Submit RFQ</h2>
+        <p class="mt-1 text-slate-300">Send part requirements and timelines to our quoting team.</p>
+      </a>
+      <a href="/portal/docs" class="rounded-md border border-slate-600 p-4 hover:border-brand-500">
+        <h2 class="text-xl font-semibold text-white">Docs</h2>
+        <p class="mt-1 text-slate-300">View process notes and account document placeholders.</p>
+      </a>
+    </div>
+  </PortalGuard>
+</BaseLayout>

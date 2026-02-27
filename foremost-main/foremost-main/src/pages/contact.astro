@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="Contact | Foremost Machine, Inc.">
+  <section class="section-shell">
+    <h1 class="text-4xl font-bold text-white">Contact</h1>
+    <p class="mt-3 max-w-3xl text-slate-300">For account and purchasing inquiries, please submit a request through our Request Access page.</p>
+
+    <div class="card mt-8 max-w-2xl space-y-5">
+      <div>
+        <h2 class="text-xl font-semibold text-white">Foremost Machine, Inc.</h2>
+        <p class="mt-1 text-slate-300">Commercial manufacturing partner</p>
+      </div>
+
+      <div class="space-y-3 text-slate-200">
+        <p><span class="font-semibold text-white">Address:</span> 1234 Industrial Parkway, Suite 200, Houston, TX 77001</p>
+        <p><span class="font-semibold text-white">Phone:</span> <a href="tel:+17135550199" class="text-brand-300 hover:text-brand-200">(713) 555-0199</a></p>
+        <p><span class="font-semibold text-white">General Email:</span> <a href="mailto:info@foremostmachine.com" class="text-brand-300 hover:text-brand-200">info@foremostmachine.com</a></p>
+        <p><span class="font-semibold text-white">Hours:</span> Monday–Friday, 8:00 AM–5:00 PM CT</p>
+      </div>
+
+      <a href="/request-access" class="inline-block rounded-md bg-brand-500 px-5 py-3 font-semibold text-white hover:bg-brand-400">Go to Request Access</a>
+    </div>
+  </section>
+</BaseLayout>

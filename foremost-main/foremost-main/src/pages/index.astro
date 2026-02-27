@@ -1,0 +1,46 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Foremost Machine, Inc. | Commercial Manufacturing Partner" description="We work exclusively with commercial accounts. Request access for quoting and production support.">
+  <section class="section-shell">
+    <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+      <div>
+        <p class="text-sm uppercase tracking-[0.2em] text-brand-100">Commercial Manufacturing Support</p>
+        <h1 class="mt-4 text-4xl font-bold text-white sm:text-5xl">We work exclusively with commercial accounts. Request access below.</h1>
+        <p class="mt-6 text-lg text-slate-300">Foremost Machine, Inc. helps procurement and engineering teams source precision parts, repeat orders, and urgent RFQs with confidence.</p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <a href="/request-access" class="rounded-md bg-brand-500 px-5 py-3 font-semibold text-white hover:bg-brand-700">Request Access</a>
+          <a href="/capabilities" class="rounded-md border border-slate-600 px-5 py-3 font-semibold text-slate-100 hover:border-slate-400">View Capabilities</a>
+        </div>
+      </div>
+      <div class="card">
+        <h2 class="text-2xl font-semibold text-white">How it works</h2>
+        <ol class="mt-4 space-y-3 text-slate-300">
+          <li><span class="font-semibold text-white">1.</span> Submit the Request Access form with your business and order profile.</li>
+          <li><span class="font-semibold text-white">2.</span> Our team reviews your commercial fit and follows up by email.</li>
+          <li><span class="font-semibold text-white">3.</span> Approved customers receive portal access details for RFQs and docs.</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-shell pt-0">
+    <h2 class="text-3xl font-semibold text-white">Capabilities at a glance</h2>
+    <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <article class="card"><h3 class="text-xl text-white">CNC Machining</h3><p class="mt-2 text-slate-300">Tight-tolerance machined components for production and custom assemblies.</p></article>
+      <article class="card"><h3 class="text-xl text-white">Prototype to Production</h3><p class="mt-2 text-slate-300">Rapid prototypes with clear handoff paths into recurring production runs.</p></article>
+      <article class="card"><h3 class="text-xl text-white">Quality & Documentation</h3><p class="mt-2 text-slate-300">Inspection reporting, material traceability, and communication built for purchasing teams.</p></article>
+    </div>
+  </section>
+
+  <section class="section-shell pt-0">
+    <div class="card flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div>
+        <h2 class="text-2xl font-semibold text-white">Ready to qualify your account?</h2>
+        <p class="mt-1 text-slate-300">Share your business profile and expected monthly volume.</p>
+      </div>
+      <a href="/request-access" class="rounded-md bg-brand-500 px-5 py-3 text-center font-semibold text-white hover:bg-brand-700">Request Access</a>
+    </div>
+  </section>
+</BaseLayout>
