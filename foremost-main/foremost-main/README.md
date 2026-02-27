@@ -92,6 +92,19 @@ Use this quick checklist:
 6. Re-test:
    - `https://www.foremostmachineinc.com`
    - `https://foremostmachineinc.com`
+1. In GoDaddy DNS, confirm `www` has exactly one record:
+   - Type: `CNAME`
+   - Host: `www`
+   - Points to: `pdubsmcgee.github.io`
+2. Delete any additional `A`, `AAAA`, `CNAME`, or forwarding rule for `www`.
+3. In GitHub **Settings → Pages**:
+   - Custom domain: `foremostmachineinc.com`
+   - Wait for DNS check to pass.
+   - Enable **Enforce HTTPS** only after DNS is correct.
+4. Wait for certificate reprovisioning (typically minutes, sometimes up to 24 hours).
+5. Re-test:
+   - `https://foremostmachineinc.com`
+   - `https://www.foremostmachineinc.com`
 
 ## 5) Verify deployment
 
