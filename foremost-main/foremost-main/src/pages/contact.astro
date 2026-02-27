@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { companyInfo } from '../config/company';
 ---
 <BaseLayout title="Contact | Foremost Machine, Inc.">
   <section class="section-shell">
@@ -8,16 +9,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     <div class="card mt-8 max-w-2xl space-y-5">
       <div>
-        <h2 class="text-xl font-semibold text-white">Foremost Machine, Inc.</h2>
-        <p class="mt-1 text-slate-300">Commercial manufacturing partner</p>
+        <h2 class="text-xl font-semibold text-white">{companyInfo.name}</h2>
+        <p class="mt-1 text-slate-300">{companyInfo.tagline}</p>
       </div>
 
       <div class="space-y-3 text-slate-200">
-        <p><span class="font-semibold text-white">Address:</span> 3312 Lincoln Rd, Hamilton, MI 49419</p>
-        <p><span class="font-semibold text-white">Phone:</span> <a href="tel:+12697518172" class="text-brand-300 hover:text-brand-200">(269) 751-8172</a></p>
-        <p><span class="font-semibold text-white">Cross Streets:</span> Between 132nd Ave and 134th Ave</p>
-        <p><span class="font-semibold text-white">General Email:</span> <a href="mailto:info@example.com" class="text-brand-300 hover:text-brand-200">info@example.com</a></p>
-        <p><span class="font-semibold text-white">Hours:</span> Monday–Friday, 8:00 AM–5:00 PM CT</p>
+        <p><span class="font-semibold text-white">Address:</span> {companyInfo.address}</p>
+        <p><span class="font-semibold text-white">Phone:</span> <a href={`tel:${companyInfo.phoneHref}`} class="text-brand-300 hover:text-brand-200">{companyInfo.phoneDisplay}</a></p>
+        <p><span class="font-semibold text-white">General Email:</span> <a href={`mailto:${companyInfo.generalEmail}`} class="text-brand-300 hover:text-brand-200">{companyInfo.generalEmail}</a></p>
+        <p><span class="font-semibold text-white">Hours:</span> {companyInfo.hours}</p>
       </div>
 
       <a href="/request-access" class="inline-block rounded-md bg-brand-500 px-5 py-3 font-semibold text-white hover:bg-brand-400">Go to Request Access</a>
