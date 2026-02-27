@@ -27,7 +27,7 @@ Create a `.env` file for local development:
 
 ```bash
 PUBLIC_SECURE_PORTAL_URL=https://secure.example.com/login
-PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT=https://formspree.io/f/your-request-access-id
+PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT=https://formsubmit.co/ajax/rumeryp12@gmail.com
 PUBLIC_RFQ_FORM_ENDPOINT=https://formspree.io/f/your-rfq-id
 ```
 
@@ -57,4 +57,4 @@ Forms submit to third-party endpoints configured by:
 - `PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT`
 - `PUBLIC_RFQ_FORM_ENDPOINT`
 
-If these are unset, forms still render but won’t submit successfully.
+If `PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT` is unset, the Request Access form defaults to `https://formsubmit.co/ajax/rumeryp12@gmail.com`.

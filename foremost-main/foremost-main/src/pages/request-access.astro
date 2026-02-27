@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const requestAccessEndpoint = import.meta.env.PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT ?? '';
+const requestAccessEndpoint = import.meta.env.PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT ?? 'https://formsubmit.co/ajax/rumeryp12@gmail.com';
 ---
 <BaseLayout title="Request Access | Foremost Machine, Inc." description="Request commercial account access for Foremost Machine, Inc.">
   <section class="section-shell">
@@ -9,6 +9,9 @@ const requestAccessEndpoint = import.meta.env.PUBLIC_REQUEST_ACCESS_FORM_ENDPOIN
     <p class="mt-3 max-w-3xl text-slate-300">Complete this form for commercial account review. We manually approve qualified business customers and send access details by email.</p>
 
     <form id="request-access-form" method="POST" action={requestAccessEndpoint} class="card mt-8 space-y-4">
+      <input type="hidden" name="_subject" value="New Foremost access request" />
+      <input type="hidden" name="_template" value="table" />
+      <input type="hidden" name="_captcha" value="false" />
       <div class="grid gap-4 md:grid-cols-2">
         <label class="block"><span class="mb-1 block text-sm text-slate-200">Business legal name *</span><input required autocomplete="organization" name="business-legal-name" type="text" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
         <label class="block"><span class="mb-1 block text-sm text-slate-200">Website *</span><input required autocomplete="url" name="website" type="url" class="w-full rounded-md border border-slate-700 bg-slate-950 px-3 py-2" /></label>
