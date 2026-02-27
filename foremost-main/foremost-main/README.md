@@ -1,4 +1,4 @@
-# Foremost Machine, Inc. Marketing + Access Request Site
+# Foremost Machine, Inc. Marketing + Access Site
 
 Astro + Tailwind static site for Foremost Machine, Inc.
 
@@ -6,15 +6,14 @@ Astro + Tailwind static site for Foremost Machine, Inc.
 
 - Public marketing pages (`/`, `/capabilities`, `/industries`, `/about`, `/contact`, `/request-access`)
 - Commercial-only positioning statement
-- Netlify-form-compatible markup currently used in Request Access and RFQ forms
-- Private portal pages (`/portal`, `/portal/rfq`, `/portal/docs`) hidden from nav and guarded by shared password login (`/portal-login`)
+- Secure portal handoff page (`/portal-login`) to external authenticated portal
+- Fallback RFQ form and request form compatible with third-party form providers
 - SEO basics: metadata, Open Graph image, sitemap integration, favicon, robots rules
 
 ## Tech Stack
 
 - Astro (static output)
 - Tailwind CSS
-- GitHub Pages deployment via GitHub Actions
 
 ## 1) Install dependencies
 
@@ -22,101 +21,40 @@ Astro + Tailwind static site for Foremost Machine, Inc.
 npm install
 ```
 
-## 2) Run locally
+## 2) Configure environment variables
+
+Create a `.env` file for local development:
 
 ```bash
-PUBLIC_PORTAL_PASSWORD=your-temp-password npm run dev
+PUBLIC_SECURE_PORTAL_URL=https://secure.example.com/login
+PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT=https://formspree.io/f/your-request-access-id
+PUBLIC_RFQ_FORM_ENDPOINT=https://formspree.io/f/your-rfq-id
+```
+
+## 3) Run locally
+
+```bash
+npm run dev
 ```
 
 Open `http://localhost:4321`.
 
-## 3) Deploy to GitHub Pages
+## 4) Validate before deploy
+
+```bash
+npm run check
+npm run build
+```
+
+## 5) Deploy to GitHub Pages
 
 This repository is configured to deploy on push to `main` using `.github/workflows/deploy.yml`.
 
-### Required one-time GitHub setup
-
-1. Push this repository to GitHub.
-2. In **Repo Settings → Pages**, set **Source** to **GitHub Actions**.
-3. In **Repo Settings → Secrets and variables → Actions**, add:
-   - `PUBLIC_PORTAL_PASSWORD` = shared password for `/portal-login`.
-4. Ensure your default deployment branch is `main` (or adjust workflow trigger).
-
-### Custom domain setup in GitHub
-
-A `public/CNAME` file is included with:
-
-```txt
-www.foremostmachineinc.com
-```
-
-After your first successful deployment:
-
-1. Go to **Repo Settings → Pages**.
-2. Confirm **Custom domain** is `www.foremostmachineinc.com` (recommended primary host).
-3. Enable **Enforce HTTPS** once DNS is fully propagated.
-4. (Optional but recommended) Add a domain redirect so apex `foremostmachineinc.com` forwards to `https://www.foremostmachineinc.com`.
-
-## 4) Point GoDaddy DNS to GitHub Pages
-
-In GoDaddy DNS for `foremostmachineinc.com`, set these records:
-
-- `A` record for host `@` to `185.199.108.153`
-- `A` record for host `@` to `185.199.109.153`
-- `A` record for host `@` to `185.199.110.153`
-- `A` record for host `@` to `185.199.111.153`
-- `CNAME` record for host `www` to `pdubsmcgee.github.io` (do **not** use A/AAAA for `www`)
-
-Notes:
-- Remove conflicting `A`, `AAAA`, or `CNAME` records on `@`/`www`.
-- Remove GoDaddy **Forwarding** entries for `www` (forwarding commonly causes `NET::ERR_CERT_COMMON_NAME_INVALID` when HTTPS + HSTS are enabled).
-- DNS propagation can take from a few minutes up to 24–48 hours.
-
-### SSL/certificate troubleshooting for `https://www.foremostmachineinc.com`
-
-If your browser shows **Your connection isn't private** with `NET::ERR_CERT_COMMON_NAME_INVALID`, `www` is usually not reaching GitHub Pages yet.
-
-Use this quick checklist:
-
-1. In GoDaddy DNS, set `www` to exactly one record:
-   - Type: `CNAME`
-   - Host: `www`
-   - Points to: `pdubsmcgee.github.io`
-2. Delete any `A`/`AAAA` records for `www` (GitHub recommends CNAME for subdomains).
-3. In GitHub **Settings → Pages** set:
-   - Custom domain: `www.foremostmachineinc.com`
-   - Wait for DNS check to pass.
-   - Enable **Enforce HTTPS** only after DNS is correct.
-4. Keep apex (`@`) A records to GitHub IPs, or forward apex to `www`.
-5. Wait for certificate reprovisioning (typically minutes, sometimes up to 24 hours).
-6. Re-test:
-   - `https://www.foremostmachineinc.com`
-   - `https://foremostmachineinc.com`
-1. In GoDaddy DNS, confirm `www` has exactly one record:
-   - Type: `CNAME`
-   - Host: `www`
-   - Points to: `pdubsmcgee.github.io`
-2. Delete any additional `A`, `AAAA`, `CNAME`, or forwarding rule for `www`.
-3. In GitHub **Settings → Pages**:
-   - Custom domain: `foremostmachineinc.com`
-   - Wait for DNS check to pass.
-   - Enable **Enforce HTTPS** only after DNS is correct.
-4. Wait for certificate reprovisioning (typically minutes, sometimes up to 24 hours).
-5. Re-test:
-   - `https://foremostmachineinc.com`
-   - `https://www.foremostmachineinc.com`
-
-## 5) Verify deployment
-
-1. Push a commit to your deployment branch (`main`, `master`, or `work` in this repo).
-2. Confirm the **Deploy Astro site to GitHub Pages** action succeeds.
-3. Visit both:
-   - `https://foremostmachineinc.com`
-   - `https://www.foremostmachineinc.com`
-4. If you want one canonical host, configure apex (`foremostmachineinc.com`) to redirect to `www` at your DNS provider.
-
 ## Important form-handling note
 
-GitHub Pages is static hosting and does **not** process Netlify Forms submissions.
+Forms submit to third-party endpoints configured by:
 
-Current forms still render, but submissions will not be captured unless you add a new backend/form provider (for example Formspree, Getform, or a custom serverless endpoint).
+- `PUBLIC_REQUEST_ACCESS_FORM_ENDPOINT`
+- `PUBLIC_RFQ_FORM_ENDPOINT`
+
+If these are unset, forms still render but won’t submit successfully.
