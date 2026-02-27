@@ -64,11 +64,32 @@ In GoDaddy DNS for `foremostmachineinc.com`, set these records:
 - `A` record for host `@` to `185.199.109.153`
 - `A` record for host `@` to `185.199.110.153`
 - `A` record for host `@` to `185.199.111.153`
-- `CNAME` record for host `www` to `<your-github-username>.github.io`
+- `CNAME` record for host `www` to `pdubsmcgee.github.io`
 
 Notes:
 - Remove conflicting `A`, `AAAA`, or `CNAME` records on `@`/`www`.
+- Remove GoDaddy **Forwarding** entries for `www` (forwarding commonly causes `NET::ERR_CERT_COMMON_NAME_INVALID` when HTTPS + HSTS are enabled).
 - DNS propagation can take from a few minutes up to 24–48 hours.
+
+### SSL/certificate troubleshooting for `https://www.foremostmachineinc.com`
+
+If your browser shows **Your connection isn't private** with `NET::ERR_CERT_COMMON_NAME_INVALID`, `www` is usually not reaching GitHub Pages yet.
+
+Use this quick checklist:
+
+1. In GoDaddy DNS, confirm `www` has exactly one record:
+   - Type: `CNAME`
+   - Host: `www`
+   - Points to: `pdubsmcgee.github.io`
+2. Delete any additional `A`, `AAAA`, `CNAME`, or forwarding rule for `www`.
+3. In GitHub **Settings → Pages**:
+   - Custom domain: `foremostmachineinc.com`
+   - Wait for DNS check to pass.
+   - Enable **Enforce HTTPS** only after DNS is correct.
+4. Wait for certificate reprovisioning (typically minutes, sometimes up to 24 hours).
+5. Re-test:
+   - `https://foremostmachineinc.com`
+   - `https://www.foremostmachineinc.com`
 
 ## 5) Verify deployment
 
