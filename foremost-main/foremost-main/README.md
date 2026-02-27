@@ -47,14 +47,15 @@ This repository is configured to deploy on push to `main` using `.github/workflo
 A `public/CNAME` file is included with:
 
 ```txt
-foremostmachineinc.com
+www.foremostmachineinc.com
 ```
 
 After your first successful deployment:
 
 1. Go to **Repo Settings → Pages**.
-2. Confirm **Custom domain** is `foremostmachineinc.com`.
+2. Confirm **Custom domain** is `www.foremostmachineinc.com` (recommended primary host).
 3. Enable **Enforce HTTPS** once DNS is fully propagated.
+4. (Optional but recommended) Add a domain redirect so apex `foremostmachineinc.com` forwards to `https://www.foremostmachineinc.com`.
 
 ## 4) Point GoDaddy DNS to GitHub Pages
 
@@ -64,7 +65,7 @@ In GoDaddy DNS for `foremostmachineinc.com`, set these records:
 - `A` record for host `@` to `185.199.109.153`
 - `A` record for host `@` to `185.199.110.153`
 - `A` record for host `@` to `185.199.111.153`
-- `CNAME` record for host `www` to `pdubsmcgee.github.io`
+- `CNAME` record for host `www` to `pdubsmcgee.github.io` (do **not** use A/AAAA for `www`)
 
 Notes:
 - Remove conflicting `A`, `AAAA`, or `CNAME` records on `@`/`www`.
@@ -77,6 +78,20 @@ If your browser shows **Your connection isn't private** with `NET::ERR_CERT_COMM
 
 Use this quick checklist:
 
+1. In GoDaddy DNS, set `www` to exactly one record:
+   - Type: `CNAME`
+   - Host: `www`
+   - Points to: `pdubsmcgee.github.io`
+2. Delete any `A`/`AAAA` records for `www` (GitHub recommends CNAME for subdomains).
+3. In GitHub **Settings → Pages** set:
+   - Custom domain: `www.foremostmachineinc.com`
+   - Wait for DNS check to pass.
+   - Enable **Enforce HTTPS** only after DNS is correct.
+4. Keep apex (`@`) A records to GitHub IPs, or forward apex to `www`.
+5. Wait for certificate reprovisioning (typically minutes, sometimes up to 24 hours).
+6. Re-test:
+   - `https://www.foremostmachineinc.com`
+   - `https://foremostmachineinc.com`
 1. In GoDaddy DNS, confirm `www` has exactly one record:
    - Type: `CNAME`
    - Host: `www`
@@ -93,12 +108,12 @@ Use this quick checklist:
 
 ## 5) Verify deployment
 
-1. Push a commit to `main`.
+1. Push a commit to your deployment branch (`main`, `master`, or `work` in this repo).
 2. Confirm the **Deploy Astro site to GitHub Pages** action succeeds.
 3. Visit both:
    - `https://foremostmachineinc.com`
    - `https://www.foremostmachineinc.com`
-4. If `www` should redirect to apex, configure forwarding in GoDaddy or canonical handling in GitHub/domain settings.
+4. If you want one canonical host, configure apex (`foremostmachineinc.com`) to redirect to `www` at your DNS provider.
 
 ## Important form-handling note
 
