@@ -116,6 +116,9 @@ PAGES = {
 DEFAULT_MENU_SHEET_URL = (
     "https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/edit?usp=drivesdk"
 )
+DEFAULT_MENU_EMBED_HREF = (
+    "https://docs.google.com/spreadsheets/d/e/2PACX-1vS7_WLAMzScz6u5j_l_sUWWinB5ziV8_UZOP4tzi2e9Ook0uuYcU6dfV1qmtA4DYIQ2e3Y7yYwmhzZw/pubhtml?gid=1158668569&single=true&widget=true&headers=false"
+)
 MENU_PDF_FILE = Path("pdf") / "menu.pdf"
 CATERING_PDF_FILE = Path("pdf") / "catering-menu.pdf"
 
@@ -221,6 +224,7 @@ def main() -> None:
         os.environ.get("MENU_SHEET_URL", DEFAULT_MENU_SHEET_URL),
         sheet_gid=os.environ.get("MENU_SHEET_GID"),
     )
+    menu_embed_href = os.environ.get("MENU_EMBED_HREF", DEFAULT_MENU_EMBED_HREF)
     catering_links = _sheet_display_links(
         os.environ.get("CATERING_SHEET_URL", os.environ.get("MENU_SHEET_URL", DEFAULT_MENU_SHEET_URL)),
         sheet_gid=os.environ.get("CATERING_SHEET_GID"),
@@ -244,7 +248,7 @@ def main() -> None:
             "CATERING_HREF": catering_pdf_href,
             "MENU_SHEET_HREF": menu_links["sheet"],
             "MENU_CSV_HREF": menu_links["csv"],
-            "MENU_EMBED_HREF": menu_links["embed"],
+            "MENU_EMBED_HREF": menu_embed_href,
             "CATERING_SHEET_HREF": catering_links["sheet"],
             "CATERING_CSV_HREF": catering_links["csv"],
             "CATERING_EMBED_HREF": catering_links["embed"],
@@ -275,7 +279,7 @@ def main() -> None:
             "TITLE": "Pigs Head BBQ | Live Menu Widget",
             "DESCRIPTION": "Embeddable live menu widget for Pigs Head BBQ, sourced from a Google Sheet.",
             "MENU_HREF": menu_pdf_href,
-            "MENU_EMBED_HREF": menu_links["embed"],
+            "MENU_EMBED_HREF": menu_embed_href,
         },
     )
     (SITE / "widget.html").write_text(widget_page.rstrip() + "\n")
