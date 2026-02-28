@@ -94,6 +94,11 @@ LOGIN_TEMPLATE = """<!doctype html>
     <meta charset=\"UTF-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
     <title>Login | Pigs Head BBQ</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon_io/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon_io/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon_io/favicon-16x16.png" />
+    <link rel="icon" type="image/x-icon" href="/images/favicon_io/favicon.ico" />
+    <link rel="manifest" href="/images/favicon_io/site.webmanifest" />
     <style>
       :root { color-scheme: dark; }
       body {
@@ -511,8 +516,8 @@ def _build_menu_pdf(menu_items: list[MenuItem], menu_title: str) -> bytes:
 @app.before_request
 def require_authentication() -> Response | None:
     path = request.path
-    exempt_paths = {"/login", "/logout"}
-    if path in exempt_paths or path.startswith("/api/"):
+    exempt_paths = {"/login", "/logout", "/favicon.ico"}
+    if path in exempt_paths or path.startswith("/api/") or path.startswith("/images/favicon_io/"):
         return None
 
     if _authenticated_username():
@@ -644,6 +649,11 @@ def add_defense_in_depth_headers(response: Response) -> Response:
 @app.get("/")
 def index() -> Response:
     return send_from_directory(SITE_DIR, "index.html")
+
+
+@app.get("/favicon.ico")
+def favicon() -> Response:
+    return send_from_directory(SITE_DIR / "images" / "favicon_io", "favicon.ico")
 
 
 @app.get("/menu.pdf")
