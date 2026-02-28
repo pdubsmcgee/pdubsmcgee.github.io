@@ -7,6 +7,8 @@ on:
       - master
       - work
   workflow_dispatch:
+  schedule:
+    - cron: '15 * * * *'
 
 permissions:
   contents: read
@@ -20,6 +22,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MENU_SHEET_URL: ${{ vars.MENU_SHEET_URL }}
+      MENU_SHEET_GID: ${{ vars.MENU_SHEET_GID }}
+      CATERING_SHEET_URL: ${{ vars.CATERING_SHEET_URL }}
+      CATERING_SHEET_GID: ${{ vars.CATERING_SHEET_GID }}
+      WEBMENU_SLIDES_URL: ${{ vars.WEBMENU_SLIDES_URL }}
+      TRUCKMENU_SLIDES_URL: ${{ vars.TRUCKMENU_SLIDES_URL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
