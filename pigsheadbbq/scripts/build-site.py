@@ -188,6 +188,8 @@ def main() -> None:
     for filename, page in PAGES.items():
         page_vars = {
             **page["header_vars"],
+            "MENU_HREF": menu_links["pdf"],
+            "CATERING_HREF": catering_links["pdf"],
             "MENU_SHEET_HREF": menu_links["sheet"],
             "MENU_CSV_HREF": menu_links["csv"],
             "MENU_EMBED_HREF": menu_links["embed"],
@@ -213,7 +215,7 @@ def main() -> None:
             },
         )
 
-        (SITE / filename).write_text(html + "\n")
+        (SITE / filename).write_text(html.rstrip() + "\n")
 
 
 if __name__ == "__main__":
