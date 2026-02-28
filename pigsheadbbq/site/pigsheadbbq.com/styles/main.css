@@ -309,24 +309,17 @@ h2 {
 }
 
 .pit-slides {
-  position: relative;
   min-height: clamp(420px, 58vw, 560px);
 }
 
 .pit-slide {
   margin: 0;
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  display: grid;
+  display: none;
   grid-template-rows: minmax(0, 1fr) auto;
   overflow: hidden;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.35);
-  transform: scale(0.985);
-  transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
 .pit-slide img {
@@ -357,9 +350,7 @@ h2 {
 #pit-slide-3:checked ~ .pit-slides .pit-slide:nth-child(3),
 #pit-slide-4:checked ~ .pit-slides .pit-slide:nth-child(4),
 #pit-slide-5:checked ~ .pit-slides .pit-slide:nth-child(5) {
-  opacity: 1;
-  pointer-events: auto;
-  transform: scale(1);
+  display: grid;
 }
 
 .pit-slide-picker {
