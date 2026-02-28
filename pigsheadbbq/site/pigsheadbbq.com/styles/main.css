@@ -598,6 +598,24 @@ h2 {
   min-height: calc(100vh - 190px);
 }
 
+.widget-page {
+  background: #1f0f0d;
+}
+
+.widget-shell {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.8rem;
+}
+
+.widget-shell .menu-widget {
+  margin: 0;
+}
+
+.widget-shell .menu-widget iframe {
+  min-height: 90vh;
+}
+
 
 
 .about-story {

@@ -44,6 +44,40 @@ BASE_LAYOUT = """<!doctype html>
 </html>
 """
 
+WIDGET_LAYOUT = """<!doctype html>
+<html lang=\"en\">
+  <head>
+    <meta charset=\"UTF-8\" />
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
+    <title>{{TITLE}}</title>
+    <meta
+      name=\"description\"
+      content=\"{{DESCRIPTION}}\"
+    />
+    <link rel=\"stylesheet\" href=\"styles/main.css\" />
+  </head>
+  <body class=\"widget-page\">
+    <main id=\"main-content\" class=\"widget-shell\">
+      <section class=\"menu-widget card\" aria-labelledby=\"widget-menu-title\">
+        <div class=\"menu-widget-header\">
+          <div>
+            <p class=\"kicker\">Live Weekly + Catering Menu</p>
+            <h1 id=\"widget-menu-title\">Pigs Head BBQ Menu Widget</h1>
+          </div>
+          <a class=\"button button-secondary button-small\" href=\"{{MENU_HREF}}\" target=\"_blank\" rel=\"noreferrer\">Open Fullscreen</a>
+        </div>
+        <iframe
+          title=\"Pigs Head BBQ live menu\"
+          src=\"{{MENU_EMBED_HREF}}\"
+          loading=\"lazy\"
+          referrerpolicy=\"no-referrer\"
+        ></iframe>
+      </section>
+    </main>
+  </body>
+</html>
+"""
+
 PAGES = {
     "index.html": {
         "title": "Pigs Head BBQ | Slow-Smoked in Southwest Michigan",
@@ -234,6 +268,17 @@ def main() -> None:
         )
 
         (SITE / filename).write_text(html.rstrip() + "\n")
+
+    widget_page = render(
+        WIDGET_LAYOUT,
+        {
+            "TITLE": "Pigs Head BBQ | Live Menu Widget",
+            "DESCRIPTION": "Embeddable live menu widget for Pigs Head BBQ, sourced from a Google Sheet.",
+            "MENU_HREF": menu_pdf_href,
+            "MENU_EMBED_HREF": menu_links["embed"],
+        },
+    )
+    (SITE / "widget.html").write_text(widget_page.rstrip() + "\n")
 
 
 if __name__ == "__main__":

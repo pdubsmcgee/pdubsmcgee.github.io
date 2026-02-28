@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pigs Head BBQ | Live Menu Widget</title>
+    <meta
+      name="description"
+      content="Embeddable live menu widget for Pigs Head BBQ, sourced from a Google Sheet."
+    />
+    <link rel="stylesheet" href="styles/main.css" />
+  </head>
+  <body class="widget-page">
+    <main id="main-content" class="widget-shell">
+      <section class="menu-widget card" aria-labelledby="widget-menu-title">
+        <div class="menu-widget-header">
+          <div>
+            <p class="kicker">Live Weekly + Catering Menu</p>
+            <h1 id="widget-menu-title">Pigs Head BBQ Menu Widget</h1>
+          </div>
+          <a class="button button-secondary button-small" href="https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/export?format=pdf" target="_blank" rel="noreferrer">Open Fullscreen</a>
+        </div>
+        <iframe
+          title="Pigs Head BBQ live menu"
+          src="https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/pubhtml?single=true&widget=true&headers=false"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+        ></iframe>
+      </section>
+    </main>
+  </body>
+</html>
