@@ -159,22 +159,24 @@ This avoids building campaign-sending code in the Flask app.
 2. Remove/disable `SUBSCRIBE_FORWARD_URL` in production if you are fully switching away from webhook forwarding.
 3. Keep collecting these fields so your sheet stays useful:
    - `email`
-   - `source_page`
+   - `how_did_you_hear_about_us`
+   - `source_page` (captured as hidden metadata in the site form)
    - `consent`
 
-> The repo is preconfigured with these Google Form mappings from your shared prefilled URL: `email -> entry.873168016`, `source_page -> entry.1104425716`, and `consent -> entry.1357884707`.
+> The repo is preconfigured with these Google Form mappings from your shared prefilled URL: `email -> entry.873168016`, `how_did_you_hear_about_us -> entry.1104425716`, and `consent -> entry.1357884707`.
 
 ### Setup guide (steps for you to complete)
 
 1. **Create a Google Form** with required inputs:
    - Email (required)
-   - Source page (hidden/default or optional)
+   - How did you hear about us? (short answer)
    - Consent checkbox (required)
 2. **Link form responses to Google Sheets** (`Responses` → `Link to Sheets`).
 3. **Confirm the form POST endpoint** is `https://docs.google.com/forms/d/e/1FAIpQLSfrMMAH2hor079r4ByBr6LU_xf7kbls7uef6hga-L1AMLFF-w/formResponse` (already configured in the template).
 4. **Update the site form mapping** in `site/pigsheadbbq.com/templates/index.content.html` (then rebuild generated pages):
    - Set `action` to the Google Form `formResponse` URL.
-   - Keep `data-google-entry` values set to `entry.873168016` (email), `entry.1104425716` (source_page), and `entry.1357884707` (consent).
+   - Keep `target="_blank"` so the confirmation opens in a new tab and your site stays open.
+   - Keep `data-google-entry` values set to `entry.873168016` (email), `entry.1104425716` (how did you hear about us), and `entry.1357884707` (consent).
    - Keep the same user-facing labels/text.
 5. **Regenerate static pages** so `index.html` picks up template changes:
 
@@ -200,7 +202,7 @@ This avoids building campaign-sending code in the Flask app.
 
 1. Submit the homepage signup form.
 2. Confirm submission lands in Google Forms/Sheets.
-3. Confirm `email`, `source_page`, and `consent` are captured correctly.
+3. Confirm `email`, `how_did_you_hear_about_us`, and `consent` are captured correctly.
 4. Submit the same email twice and confirm your dedupe process behaves as intended.
 5. Run one manual newsletter send from Gmail (or import to provider UI and send there).
 
