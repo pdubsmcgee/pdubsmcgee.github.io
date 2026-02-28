@@ -327,8 +327,9 @@ h2 {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: scale(1.015);
-  transition: opacity 0.55s ease, transform 0.55s ease, visibility 0s linear 0.55s;
+  z-index: 0;
+  transition: opacity 0.45s ease-in-out;
+  will-change: opacity;
 }
 
 .pit-slide img {
@@ -336,6 +337,13 @@ h2 {
   height: 100%;
   min-height: 280px;
   object-fit: cover;
+}
+
+
+.pit-slide img.pit-slide-prime-rib {
+  object-fit: contain;
+  object-position: center center;
+  background: #120707;
 }
 
 .pit-slide figcaption {
@@ -366,8 +374,7 @@ h2 {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
-  transform: scale(1);
-  transition-delay: 0s;
+  z-index: 1;
 }
 
 .pit-slide-picker {
@@ -400,7 +407,6 @@ h2 {
 @media (prefers-reduced-motion: reduce) {
   .pit-slide {
     transition: none;
-    transform: none;
   }
 }
 
