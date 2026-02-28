@@ -142,45 +142,67 @@ gunicorn --bind 0.0.0.0:8000 server.app:app
 
 If running behind a reverse proxy/ingress, terminate TLS before requests reach this app so secure cookies are respected by browsers.
 
-## Signup forwarding webhook (`SUBSCRIBE_FORWARD_URL`)
+## TinyMail / Static Form + Google Sheets (simple + free path)
 
-The `/api/subscribe` endpoint writes each signup record locally and then forwards the same JSON payload using `_forward_subscription_record(record)` in `server/app.py`.
+If you only send newsletters occasionally, use a no-code workflow:
 
-Configure your deployment environment with a webhook endpoint URL from Zapier, Make, or n8n:
+- Host a simple signup form on the site.
+- Send form submissions to Google Forms (or a TinyMail-style static form backend).
+- Store responses in Google Sheets.
+- Send newsletters manually from Gmail (or Gmail API later if needed).
 
-```bash
-export SUBSCRIBE_FORWARD_URL='https://hooks.zapier.com/hooks/catch/...'
-```
+This avoids building campaign-sending code in the Flask app.
 
-Forwarded JSON fields:
+### What to change in this repo
 
-- `timestamp`
-- `email`
-- `phone`
-- `consent`
-- `source_page`
-
-### Automation flow setup (Zapier / Make / n8n)
-
-1. Trigger: **Catch Hook / Webhook (POST JSON)**.
-2. Map payload fields exactly as received:
-   - `timestamp`
+1. Keep the site signup UI, but point the form to your Google Form endpoint instead of `/api/subscribe` once your form is ready.
+2. Remove/disable `SUBSCRIBE_FORWARD_URL` in production if you are fully switching away from webhook forwarding.
+3. Keep collecting these fields so your sheet stays useful:
    - `email`
-   - `phone`
-   - `consent`
    - `source_page`
-3. Add one email action that sends a notification to both recipients:
-   - `rumeryp12@gmail.com`
-   - `pigsheadbbq@gmail.com`
-4. Use a subject like: `New Pigs Head BBQ signup`.
-5. Include all mapped fields in the email body.
+   - `consent`
+
+> Google Forms uses generated field names like `entry.123456789`, so you will map each site field to the matching Google Form entry key when you wire it up.
+
+### Setup guide (steps for you to complete)
+
+1. **Create a Google Form** with required inputs:
+   - Email (required)
+   - Source page (hidden/default or optional)
+   - Consent checkbox (required)
+2. **Link form responses to Google Sheets** (`Responses` → `Link to Sheets`).
+3. **Get the form POST endpoint** from the form HTML (`.../formResponse`) plus the generated `entry.*` field IDs.
+4. **Update the site form mapping** in `site/pigsheadbbq.com/templates/index.content.html` (then rebuild generated pages):
+   - Set `action` to the Google Form `formResponse` URL.
+   - Rename `name` attributes to the Google `entry.*` keys.
+   - Keep the same user-facing labels/text.
+5. **Regenerate static pages** so `index.html` picks up template changes:
+
+   ```bash
+   python3 scripts/build-site.py
+   ```
+
+6. **Deploy and test one signup**.
+7. **Verify in Google Sheets**:
+   - New row appears.
+   - Repeat signup with same email updates your process (for strict dedupe, use a Sheet formula, Apps Script, or clean-up workflow).
+8. **Send newsletters from provider UI**:
+   - For occasional sends, use Gmail manually (BCC or mail merge workflow).
+   - If volume grows, import the sheet into Mailchimp/Brevo and send from their campaign UI.
+
+### Optional deduplication helpers for Sheets
+
+- Use a unique-email tab with `UNIQUE()`.
+- Or add an Apps Script that upserts by email into a "master" tab.
+- Keep consent values visible so you only message opted-in contacts.
 
 ### Verification checklist
 
-1. Deploy with `SUBSCRIBE_FORWARD_URL` set.
-2. Open the homepage and submit the form with `action="/api/subscribe"`.
-3. Confirm your automation run received JSON with all five fields above.
-4. Confirm one notification email was delivered to both recipients.
+1. Submit the homepage signup form.
+2. Confirm submission lands in Google Forms/Sheets.
+3. Confirm `email`, `source_page`, and `consent` are captured correctly.
+4. Submit the same email twice and confirm your dedupe process behaves as intended.
+5. Run one manual newsletter send from Gmail (or import to provider UI and send there).
 
 ## Security configuration
 
