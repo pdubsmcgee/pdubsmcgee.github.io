@@ -340,12 +340,6 @@ h2 {
 }
 
 
-.pit-slide img.pit-slide-prime-rib {
-  object-fit: contain;
-  object-position: center center;
-  background: #120707;
-}
-
 .pit-slide figcaption {
   padding: 1rem;
   min-height: 150px;
