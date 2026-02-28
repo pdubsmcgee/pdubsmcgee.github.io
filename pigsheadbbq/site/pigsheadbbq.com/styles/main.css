@@ -7,6 +7,10 @@
   --accent-2: #ffc857;
   --border: #4f2b24;
   --max: 1120px;
+  --space-2: clamp(0.5rem, 0.4rem + 0.4vw, 0.85rem);
+  --space-4: clamp(1rem, 0.8rem + 0.8vw, 1.6rem);
+  --space-8: clamp(2rem, 1.4rem + 2vw, 4rem);
+  --text-body: clamp(0.98rem, 0.92rem + 0.2vw, 1.06rem);
 }
 
 html {
@@ -23,6 +27,7 @@ body {
   line-height: 1.55;
   color: var(--text);
   background: linear-gradient(180deg, #100605, #1a0b09 25%, #160807);
+  font-size: var(--text-body);
 }
 
 img {
@@ -32,9 +37,22 @@ img {
 
 
 a:focus-visible,
-button:focus-visible {
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
+}
+
+input,
+select,
+textarea,
+button,
+.button,
+.button-small,
+.menu-toggle {
+  min-height: 44px;
 }
 
 .skip-link {
@@ -127,7 +145,9 @@ button:focus-visible {
 
 .hero {
   position: relative;
-  min-height: 70vh;
+  min-height: min(760px, 70vh);
+  min-height: min(760px, 70svh);
+  min-height: min(760px, 70dvh);
   display: grid;
   align-items: end;
 }
@@ -150,7 +170,7 @@ button:focus-visible {
 
 .hero-content {
   position: relative;
-  padding: 4rem 0;
+  padding: var(--space-8) 0;
   max-width: 700px;
 }
 
@@ -213,7 +233,7 @@ h2 {
 }
 
 .button-small {
-  padding: 0.5rem 0.9rem;
+  padding: 0.5rem 0.95rem;
 }
 
 .button-secondary,
@@ -262,7 +282,7 @@ h2 {
 }
 
 .photo-gallery {
-  padding: 4rem 0 1rem;
+  padding: var(--space-8) 0 var(--space-4);
 }
 
 .photo-gallery-grid {
@@ -340,7 +360,9 @@ h2 {
 }
 
 .signup-consent-wrap input {
-  margin-top: 0.3rem;
+  margin-top: 0.4rem;
+  width: 1.1rem;
+  height: 1.1rem;
 }
 
 .signup-consent-wrap label {
@@ -398,7 +420,7 @@ h2 {
 .menu,
 .reviews,
 .about-page {
-  padding: 4rem 0;
+  padding: var(--space-8) 0;
 }
 
 .section-head {
@@ -462,7 +484,8 @@ h2 {
 
 .menu-widget iframe {
   width: 100%;
-  min-height: min(70vh, 780px);
+  min-height: clamp(300px, 55svh, 780px);
+  min-height: clamp(300px, 55dvh, 780px);
   border: 0;
   border-radius: 12px;
   background: #fff;
@@ -519,7 +542,8 @@ h2 {
 
 .menu-slide-frame {
   width: 100%;
-  min-height: min(72vh, 660px);
+  min-height: clamp(300px, 68svh, 660px);
+  min-height: clamp(300px, 68dvh, 660px);
   border: 0;
   border-radius: 10px;
   background: #fff;
@@ -534,7 +558,7 @@ h2 {
 }
 
 .catering {
-  padding: 4rem 0;
+  padding: var(--space-8) 0;
   background: radial-gradient(circle at top left, rgba(255, 95, 42, 0.2), transparent 45%);
 }
 
@@ -626,6 +650,10 @@ h2 {
   color: var(--muted);
 }
 
+.measure {
+  max-width: 65ch;
+}
+
 .about-story .basic-image {
   border-radius: 14px;
   border: 1px solid var(--border);
@@ -637,7 +665,7 @@ h2 {
 }
 
 .facebook-feed {
-  padding: 1rem 0 4rem;
+  padding: var(--space-4) 0 var(--space-8);
 }
 
 .facebook-feed .section-head p {
@@ -652,8 +680,14 @@ h2 {
 
 .facebook-embed iframe {
   width: min(100%, 500px);
+  height: clamp(360px, 60svh, 680px);
+  height: clamp(360px, 60dvh, 680px);
   border-radius: 10px;
   background: #fff;
+}
+
+.cta-more {
+  display: none;
 }
 
 .facebook-note {
@@ -665,7 +699,7 @@ h2 {
   color: var(--accent-2);
 }
 
-@media (max-width: 940px) {
+@media (max-width: 860px) {
   .menu-grid,
   .review-grid,
   .photo-gallery-grid,
@@ -681,6 +715,8 @@ h2 {
 
   .menu-toggle {
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border: 1px solid var(--border);
     background: transparent;
     color: var(--text);
@@ -707,11 +743,27 @@ h2 {
   }
 
   .menu-widget iframe {
-    min-height: 360px;
+    min-height: clamp(280px, 50svh, 460px);
+    min-height: clamp(280px, 50dvh, 460px);
   }
 
   .menu-slide-frame {
-    min-height: min(60vh, 520px);
+    min-height: clamp(300px, 56svh, 520px);
+    min-height: clamp(300px, 56dvh, 520px);
+  }
+}
+
+@media (max-width: 620px) {
+  .menu-links[data-collapsible="true"] .cta-more {
+    display: inline-block;
+  }
+
+  .menu-links[data-collapsible="true"] .cta-overflow {
+    display: none;
+  }
+
+  .menu-links[data-collapsible="true"].is-expanded .cta-overflow {
+    display: inline-block;
   }
 }
 

@@ -2,28 +2,72 @@ const nav = document.querySelector('#site-nav');
 const menuToggle = nav ? document.querySelector(`.menu-toggle[aria-controls="${nav.id}"]`) : null;
 
 if (menuToggle && nav) {
-  const closeMenu = () => {
+  const firstNavLink = nav.querySelector('a');
+
+  const closeMenu = (returnFocus = true) => {
     nav.classList.remove('open');
     menuToggle.setAttribute('aria-expanded', 'false');
+    if (returnFocus) {
+      menuToggle.focus();
+    }
   };
 
   menuToggle.addEventListener('click', () => {
     const isOpen = nav.classList.toggle('open');
     menuToggle.setAttribute('aria-expanded', String(isOpen));
+    if (isOpen) {
+      firstNavLink?.focus();
+    }
   });
 
   nav.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => {
-      closeMenu();
+      closeMenu(false);
     });
   });
 
   window.addEventListener('resize', () => {
-    if (window.innerWidth > 940) {
+    if (window.innerWidth > 860) {
+      closeMenu(false);
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && nav.classList.contains('open')) {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!nav.classList.contains('open')) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Node)) {
+      return;
+    }
+
+    if (!nav.contains(target) && !menuToggle.contains(target)) {
       closeMenu();
     }
   });
 }
+
+const ctaMoreTriggers = document.querySelectorAll('[data-cta-more]');
+
+ctaMoreTriggers.forEach((trigger) => {
+  trigger.addEventListener('click', () => {
+    const parent = trigger.closest('.menu-links[data-collapsible="true"]');
+    if (!(parent instanceof HTMLElement)) {
+      return;
+    }
+
+    const isExpanded = parent.classList.toggle('is-expanded');
+    trigger.setAttribute('aria-expanded', String(isExpanded));
+    trigger.textContent = isExpanded ? 'Show fewer options' : 'More options';
+  });
+});
 
 const widgetTriggers = document.querySelectorAll('[data-menu-widget-trigger]');
 
