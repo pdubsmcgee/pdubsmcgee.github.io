@@ -94,6 +94,9 @@ LOGIN_TEMPLATE = """<!doctype html>
     <meta charset=\"UTF-8\" />
     <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />
     <title>Login | Pigs Head BBQ</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="icon" type="image/png" href="/svgs/favicon.png" />
+    <link rel="apple-touch-icon" href="/svgs/favicon.png" />
     <style>
       :root { color-scheme: dark; }
       body {
@@ -511,7 +514,7 @@ def _build_menu_pdf(menu_items: list[MenuItem], menu_title: str) -> bytes:
 @app.before_request
 def require_authentication() -> Response | None:
     path = request.path
-    exempt_paths = {"/login", "/logout"}
+    exempt_paths = {"/login", "/logout", "/favicon.ico"}
     if path in exempt_paths or path.startswith("/api/"):
         return None
 
