@@ -309,17 +309,26 @@ h2 {
 }
 
 .pit-slides {
+  position: relative;
   min-height: clamp(420px, 58vw, 560px);
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  overflow: hidden;
 }
 
 .pit-slide {
   margin: 0;
-  display: none;
+  position: absolute;
+  inset: 0;
+  display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  overflow: hidden;
-  border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(1.015);
+  transition: opacity 0.55s ease, transform 0.55s ease, visibility 0s linear 0.55s;
 }
 
 .pit-slide img {
@@ -331,6 +340,7 @@ h2 {
 
 .pit-slide figcaption {
   padding: 1rem;
+  min-height: 150px;
   background: linear-gradient(180deg, rgba(9, 4, 4, 0.35), rgba(9, 4, 4, 0.92));
 }
 
@@ -350,7 +360,11 @@ h2 {
 #pit-slide-3:checked ~ .pit-slides .pit-slide:nth-child(3),
 #pit-slide-4:checked ~ .pit-slides .pit-slide:nth-child(4),
 #pit-slide-5:checked ~ .pit-slides .pit-slide:nth-child(5) {
-  display: grid;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+  transition-delay: 0s;
 }
 
 .pit-slide-picker {
@@ -378,6 +392,13 @@ h2 {
   color: #fff;
   border-color: rgba(231, 210, 199, 0.95);
   background: rgba(255, 255, 255, 0.09);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pit-slide {
+    transition: none;
+    transform: none;
+  }
 }
 
 #pit-slide-1:checked ~ .pit-slide-picker label[for="pit-slide-1"],
