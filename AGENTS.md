@@ -133,6 +133,8 @@ Update docs for any changes to:
 - Do not invent requirements; ask/flag when unclear.
 - Do not fabricate test results.
 - Do not claim completion without validation steps.
+- Never write a placeholder/stub file over an existing file. If a file already exists, preserve it unless the user explicitly asked to replace it.
+- Before creating any fallback placeholder (for example PDFs, images, or data files), first verify the target path does not already exist and stop/ask for direction if it does.
 - If blocked, report what was tried, what failed, and next best action.
 - Keep final handoff concise and actionable.
 
