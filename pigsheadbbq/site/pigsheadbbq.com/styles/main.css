@@ -266,8 +266,7 @@ h2 {
 
 .feature-card img {
   width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: cover;
+  height: auto;
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -298,8 +297,7 @@ h2 {
 
 .gallery-photo img {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: auto;
   border-radius: 10px;
 }
 
