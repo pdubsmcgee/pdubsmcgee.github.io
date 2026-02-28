@@ -74,8 +74,8 @@ const pitSlideshows = document.querySelectorAll('.pit-slideshow');
 pitSlideshows.forEach((slideshow) => {
   const slides = Array.from(slideshow.querySelectorAll('input[type="radio"][name="pit-slide"]'));
   const pickerLabels = Array.from(slideshow.querySelectorAll('.pit-slide-picker label[for]'));
-  const autoplayDelayMs = 8000;
-  const interactionPauseMs = 18000;
+  const autoplayDelayMs = 5000;
+  const interactionPauseMs = 12000;
   const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   if (slides.length < 2) {
