@@ -155,7 +155,7 @@ This avoids building campaign-sending code in the Flask app.
 
 ### What to change in this repo
 
-1. Keep the site signup UI, but point the form to your Google Form endpoint instead of `/api/subscribe` once your form is ready.
+1. Keep the site signup UI, and point the form to your Google Form endpoint instead of `/api/subscribe` (already set in the template to `https://docs.google.com/forms/d/e/1FAIpQLSfrMMAH2hor079r4ByBr6LU_xf7kbls7uef6hga-L1AMLFF-w/formResponse`).
 2. Remove/disable `SUBSCRIBE_FORWARD_URL` in production if you are fully switching away from webhook forwarding.
 3. Keep collecting these fields so your sheet stays useful:
    - `email`
@@ -171,10 +171,10 @@ This avoids building campaign-sending code in the Flask app.
    - Source page (hidden/default or optional)
    - Consent checkbox (required)
 2. **Link form responses to Google Sheets** (`Responses` → `Link to Sheets`).
-3. **Get the form POST endpoint** from the form HTML (`.../formResponse`) plus the generated `entry.*` field IDs.
+3. **Confirm the form POST endpoint** is `https://docs.google.com/forms/d/e/1FAIpQLSfrMMAH2hor079r4ByBr6LU_xf7kbls7uef6hga-L1AMLFF-w/formResponse` and copy the generated `entry.*` field IDs from the Google Form HTML.
 4. **Update the site form mapping** in `site/pigsheadbbq.com/templates/index.content.html` (then rebuild generated pages):
    - Set `action` to the Google Form `formResponse` URL.
-   - Rename `name` attributes to the Google `entry.*` keys.
+   - Fill each `data-google-entry` attribute with the matching Google `entry.*` key (the script auto-maps `name` for Google Forms when these values are set).
    - Keep the same user-facing labels/text.
 5. **Regenerate static pages** so `index.html` picks up template changes:
 

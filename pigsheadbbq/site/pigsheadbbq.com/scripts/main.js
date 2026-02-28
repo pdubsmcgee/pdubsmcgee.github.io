@@ -97,6 +97,23 @@ if (signupForm instanceof HTMLFormElement) {
   const submitButton = signupForm.querySelector('[data-signup-submit]');
   const messageNode = signupForm.querySelector('[data-signup-message]');
   const sourceField = signupForm.querySelector('[data-signup-source]');
+  const actionUrl = signupForm.getAttribute('action') || '/api/subscribe';
+  const parsedActionUrl = new URL(actionUrl, window.location.origin);
+  const isGoogleFormEndpoint =
+    parsedActionUrl.hostname === 'docs.google.com' && parsedActionUrl.pathname.includes('/forms/');
+
+  if (isGoogleFormEndpoint) {
+    signupForm.querySelectorAll('[data-google-entry]').forEach((field) => {
+      if (!(field instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const googleEntry = field.getAttribute('data-google-entry');
+      if (googleEntry && googleEntry.startsWith('entry.')) {
+        field.setAttribute('name', googleEntry);
+      }
+    });
+  }
 
   if (sourceField instanceof HTMLInputElement) {
     sourceField.value = window.location.pathname || '/';
@@ -116,14 +133,20 @@ if (signupForm instanceof HTMLFormElement) {
   };
 
   signupForm.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
     if (!signupForm.reportValidity()) {
+      event.preventDefault();
       setMessage('Please complete the required fields to subscribe.', 'error');
       return;
     }
 
-    const endpoint = signupForm.getAttribute('action') || '/api/subscribe';
+    if (isGoogleFormEndpoint) {
+      setMessage('Sending your signup to our newsletter sheet...');
+      return;
+    }
+
+    event.preventDefault();
+
+    const endpoint = actionUrl;
     const formData = new FormData(signupForm);
 
     signupForm.setAttribute('data-busy', 'true');
