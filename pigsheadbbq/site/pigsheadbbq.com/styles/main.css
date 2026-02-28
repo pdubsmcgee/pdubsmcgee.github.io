@@ -359,7 +359,10 @@ h2 {
 #pit-slide-2:checked ~ .pit-slides .pit-slide:nth-child(2),
 #pit-slide-3:checked ~ .pit-slides .pit-slide:nth-child(3),
 #pit-slide-4:checked ~ .pit-slides .pit-slide:nth-child(4),
-#pit-slide-5:checked ~ .pit-slides .pit-slide:nth-child(5) {
+#pit-slide-5:checked ~ .pit-slides .pit-slide:nth-child(5),
+#pit-slide-6:checked ~ .pit-slides .pit-slide:nth-child(6),
+#pit-slide-7:checked ~ .pit-slides .pit-slide:nth-child(7),
+#pit-slide-8:checked ~ .pit-slides .pit-slide:nth-child(8) {
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -369,7 +372,7 @@ h2 {
 
 .pit-slide-picker {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 0.55rem;
 }
 
@@ -405,7 +408,10 @@ h2 {
 #pit-slide-2:checked ~ .pit-slide-picker label[for="pit-slide-2"],
 #pit-slide-3:checked ~ .pit-slide-picker label[for="pit-slide-3"],
 #pit-slide-4:checked ~ .pit-slide-picker label[for="pit-slide-4"],
-#pit-slide-5:checked ~ .pit-slide-picker label[for="pit-slide-5"] {
+#pit-slide-5:checked ~ .pit-slide-picker label[for="pit-slide-5"],
+#pit-slide-6:checked ~ .pit-slide-picker label[for="pit-slide-6"],
+#pit-slide-7:checked ~ .pit-slide-picker label[for="pit-slide-7"],
+#pit-slide-8:checked ~ .pit-slide-picker label[for="pit-slide-8"] {
   background: linear-gradient(120deg, rgba(202, 112, 42, 0.32), rgba(202, 112, 42, 0.14));
   border-color: rgba(202, 112, 42, 0.82);
   color: #fff;
