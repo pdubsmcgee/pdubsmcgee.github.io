@@ -35,7 +35,6 @@ DEFAULT_MENU_SHEET_URL = (
 DEFAULT_CATERING_SHEET_URL = DEFAULT_MENU_SHEET_URL
 
 EMAIL_PATTERN = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
-PHONE_PATTERN = re.compile(r"^[0-9+()\-\s]{7,20}$")
 
 
 @dataclass
@@ -263,10 +262,6 @@ def _download_menu_items(sheet_url: str, sheet_gid: str | None = None) -> list[M
 
 
 
-def _normalize_phone(phone_value: str) -> str:
-    return re.sub(r"\D", "", phone_value)
-
-
 def _subscription_storage_path() -> Path:
     configured_path = os.environ.get("SUBSCRIBE_STORAGE_PATH", str(BASE_DIR / "data" / "subscriptions.ndjson"))
     return Path(configured_path)
@@ -295,14 +290,9 @@ def _forward_subscription_record(record: dict[str, str]) -> None:
         return
 
 
-def _validate_subscription(email: str, phone: str, consent: str) -> str | None:
+def _validate_subscription(email: str, consent: str) -> str | None:
     if not EMAIL_PATTERN.match(email):
         return "Please enter a valid email address."
-
-    if phone:
-        normalized_phone = _normalize_phone(phone)
-        if not PHONE_PATTERN.match(phone) or len(normalized_phone) < 10:
-            return "Please enter a valid phone number or leave it blank."
 
     if consent.lower() not in {"1", "yes", "on", "true"}:
         return "Please confirm consent before signing up."
@@ -470,18 +460,16 @@ def logout() -> Response:
 @app.post("/api/subscribe")
 def subscribe() -> Response:
     email = (request.form.get("email") or "").strip()
-    phone = (request.form.get("phone") or "").strip()
     consent = (request.form.get("consent") or "").strip()
     source_page = (request.form.get("source_page") or request.referrer or request.path).strip()
 
-    validation_error = _validate_subscription(email=email, phone=phone, consent=consent)
+    validation_error = _validate_subscription(email=email, consent=consent)
     if validation_error:
         return jsonify({"ok": False, "message": validation_error}), 400
 
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "email": email.lower(),
-        "phone": phone,
         "consent": "yes",
         "source_page": source_page[:300],
     }
