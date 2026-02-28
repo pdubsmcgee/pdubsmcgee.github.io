@@ -142,6 +142,46 @@ gunicorn --bind 0.0.0.0:8000 server.app:app
 
 If running behind a reverse proxy/ingress, terminate TLS before requests reach this app so secure cookies are respected by browsers.
 
+## Signup forwarding webhook (`SUBSCRIBE_FORWARD_URL`)
+
+The `/api/subscribe` endpoint writes each signup record locally and then forwards the same JSON payload using `_forward_subscription_record(record)` in `server/app.py`.
+
+Configure your deployment environment with a webhook endpoint URL from Zapier, Make, or n8n:
+
+```bash
+export SUBSCRIBE_FORWARD_URL='https://hooks.zapier.com/hooks/catch/...'
+```
+
+Forwarded JSON fields:
+
+- `timestamp`
+- `email`
+- `phone`
+- `consent`
+- `source_page`
+
+### Automation flow setup (Zapier / Make / n8n)
+
+1. Trigger: **Catch Hook / Webhook (POST JSON)**.
+2. Map payload fields exactly as received:
+   - `timestamp`
+   - `email`
+   - `phone`
+   - `consent`
+   - `source_page`
+3. Add one email action that sends a notification to both recipients:
+   - `rumeryp12@gmail.com`
+   - `pigsheadbbq@gmail.com`
+4. Use a subject like: `New Pigs Head BBQ signup`.
+5. Include all mapped fields in the email body.
+
+### Verification checklist
+
+1. Deploy with `SUBSCRIBE_FORWARD_URL` set.
+2. Open the homepage and submit the form with `action="/api/subscribe"`.
+3. Confirm your automation run received JSON with all five fields above.
+4. Confirm one notification email was delivered to both recipients.
+
 ## Security configuration
 
 The login gateway now expects secure, environment-only auth configuration and includes CSRF + brute-force protection:
