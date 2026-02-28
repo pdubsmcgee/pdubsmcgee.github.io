@@ -276,19 +276,7 @@ h2 {
   margin-top: 1.6rem;
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.quick-info-qr {
-  text-align: center;
-}
-
-.quick-info-qr img {
-  width: min(180px, 100%);
-  margin: 0.7rem auto 0;
-  border-radius: 10px;
-  background: #fff;
-  padding: 0.45rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .signup-strip {
@@ -559,6 +547,27 @@ h2 {
 .footer-links a {
   color: var(--muted);
   text-decoration: none;
+}
+
+.footer-qr {
+  text-align: center;
+}
+
+.footer-qr p {
+  margin: 0 0 0.45rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.footer-qr img {
+  width: 88px;
+  height: auto;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.35rem;
 }
 
 .about-page {
