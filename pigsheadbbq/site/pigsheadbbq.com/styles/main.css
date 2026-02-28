@@ -276,7 +276,19 @@ h2 {
   margin-top: 1.6rem;
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-info-qr {
+  text-align: center;
+}
+
+.quick-info-qr img {
+  width: min(180px, 100%);
+  margin: 0.7rem auto 0;
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.45rem;
 }
 
 .signup-strip {
