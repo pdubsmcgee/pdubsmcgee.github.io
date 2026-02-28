@@ -162,7 +162,7 @@ This avoids building campaign-sending code in the Flask app.
    - `source_page`
    - `consent`
 
-> Google Forms uses generated field names like `entry.123456789`, so you will map each site field to the matching Google Form entry key when you wire it up.
+> The repo is preconfigured with these Google Form mappings from your shared prefilled URL: `email -> entry.873168016`, `source_page -> entry.1104425716`, and `consent -> entry.1357884707`.
 
 ### Setup guide (steps for you to complete)
 
@@ -171,10 +171,10 @@ This avoids building campaign-sending code in the Flask app.
    - Source page (hidden/default or optional)
    - Consent checkbox (required)
 2. **Link form responses to Google Sheets** (`Responses` → `Link to Sheets`).
-3. **Confirm the form POST endpoint** is `https://docs.google.com/forms/d/e/1FAIpQLSfrMMAH2hor079r4ByBr6LU_xf7kbls7uef6hga-L1AMLFF-w/formResponse` and copy the generated `entry.*` field IDs from the Google Form HTML.
+3. **Confirm the form POST endpoint** is `https://docs.google.com/forms/d/e/1FAIpQLSfrMMAH2hor079r4ByBr6LU_xf7kbls7uef6hga-L1AMLFF-w/formResponse` (already configured in the template).
 4. **Update the site form mapping** in `site/pigsheadbbq.com/templates/index.content.html` (then rebuild generated pages):
    - Set `action` to the Google Form `formResponse` URL.
-   - Fill each `data-google-entry` attribute with the matching Google `entry.*` key (the script auto-maps `name` for Google Forms when these values are set).
+   - Keep `data-google-entry` values set to `entry.873168016` (email), `entry.1104425716` (source_page), and `entry.1357884707` (consent).
    - Keep the same user-facing labels/text.
 5. **Regenerate static pages** so `index.html` picks up template changes:
 
