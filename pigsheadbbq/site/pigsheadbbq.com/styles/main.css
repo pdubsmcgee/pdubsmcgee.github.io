@@ -9,6 +9,10 @@
   --max: 1120px;
 }
 
+html {
+  background: #100605;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -34,9 +38,9 @@ button:focus-visible {
 }
 
 .skip-link {
-  position: absolute;
+  position: fixed;
   left: 0.75rem;
-  top: -120px;
+  top: max(0.75rem, env(safe-area-inset-top));
   background: #fff;
   color: #111;
   font-weight: 700;
@@ -44,10 +48,17 @@ button:focus-visible {
   padding: 0.5rem 0.85rem;
   z-index: 100;
   text-decoration: none;
+  transform: translateY(calc(-100% - 1rem));
+  opacity: 0;
+  pointer-events: none;
 }
 
-.skip-link:focus {
-  top: 0.75rem;
+.skip-link:focus,
+.skip-link:focus-visible,
+.skip-link:active {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .container {
