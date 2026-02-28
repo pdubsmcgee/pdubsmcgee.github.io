@@ -29,7 +29,7 @@
           <img src="svgs/logo.svg" alt="Pigs Head BBQ logo" />
           <span>Pigs Head BBQ</span>
         </a>
-        <button class="menu-toggle" aria-expanded="false" aria-controls="site-nav">Menu</button>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-haspopup="true">Menu</button>
         <nav id="site-nav" class="site-nav" aria-label="Main navigation">
           <a href="#menu">Menu</a>
           <a href="#facebook">Facebook</a>
@@ -41,12 +41,12 @@
 
     <main id="main-content">
       <section class="hero">
-        <img src="images/siteimages/foodtruck.jpg" alt="Pigs Head BBQ food truck at an event" />
+        <img src="images/siteimages/foodtruck.jpg" srcset="images/siteimages/foodtruck.jpg 1536w" sizes="100vw" width="1536" height="1024" alt="Pigs Head BBQ food truck at an event" />
         <div class="hero-overlay"></div>
         <div class="container hero-content">
           <p class="kicker">Southwest Michigan BBQ</p>
           <h1>Real Smoke. Big Flavor. No Shortcuts.</h1>
-          <p>
+          <p class="measure">
             We slow-smoke premium meats, craft our own sauces, and serve crowd-favorite sides that hit every comfort
             note.
           </p>
@@ -78,21 +78,21 @@
     
       <section class="signature-strip container">
         <article class="feature-card card">
-          <img src="images/siteimages/brisket.jpg" alt="Smoked brisket sliced and ready to serve" />
+          <img src="images/siteimages/brisket.jpg" srcset="images/siteimages/brisket.jpg 2048w" sizes="(max-width: 580px) 100vw, (max-width: 860px) 50vw, 33vw" width="2048" height="1365" alt="Smoked brisket sliced and ready to serve" />
           <div>
             <h3>Slow-Smoked Daily</h3>
             <p>Brisket and pulled pork are smoked low and slow for deep smoke flavor.</p>
           </div>
         </article>
         <article class="feature-card card">
-          <img src="images/siteimages/ribs.jpg" alt="Smoked ribs plated for service" />
+          <img src="images/siteimages/ribs.jpg" srcset="images/siteimages/ribs.jpg 640w" sizes="(max-width: 580px) 100vw, (max-width: 860px) 50vw, 33vw" width="640" height="853" alt="Smoked ribs plated for service" />
           <div>
             <h3>Ribs With Real Bark</h3>
             <p>Dry-rubbed ribs with sauce on the side so the smoke shines first.</p>
           </div>
         </article>
         <article class="feature-card card">
-          <img src="images/siteimages/allmeats.jpg" alt="All meats platter ready for catering events" />
+          <img src="images/siteimages/allmeats.jpg" srcset="images/siteimages/allmeats.jpg 1152w" sizes="(max-width: 580px) 100vw, (max-width: 860px) 50vw, 33vw" width="1152" height="1536" alt="All meats platter ready for catering events" />
           <div>
             <h3>Catering Crowd Favorites</h3>
             <p>Complete the meal with fan-favorite sides and rotating desserts.</p>
@@ -104,7 +104,7 @@
         <div class="section-head">
           <p class="kicker">From The Pit</p>
           <h2>Fresh Photos From Pigs Head BBQ</h2>
-          <p>Real shots from the truck, the smoker, and some customer favorites.</p>
+          <p class="measure">Real shots from the truck, the smoker, and some customer favorites.</p>
         </div>
         <div class="photo-gallery-grid">
           <figure class="gallery-photo card">
@@ -197,7 +197,7 @@
         <div class="section-head">
           <p class="kicker">Live Updates</p>
           <h2>Follow Along on Facebook</h2>
-          <p>
+          <p class="measure">
             For the fastest truck location updates and daily posts, visit our official Facebook page.
           </p>
         </div>
@@ -224,22 +224,23 @@
           <div>
             <p class="kicker">Need to feed a crowd?</p>
             <h2>Catering Made Easy</h2>
-            <p>
+            <p class="measure">
               Build your event menu with smoked meats, rotating sides, and crowd-sized portions. We’ll help you plan a
               spread your guests talk about long after the event.
             </p>
-            <p>
+            <p class="measure">
               Call or email us to plan catering for your group size, timeline, and budget.
             </p>
-            <p class="menu-links">
+            <p class="menu-links" data-collapsible="true">
               <a class="button button-secondary" href="pdf/catering_menu_2026.pdf" download="catering_menu_2026.pdf">Download Catering Menu PDF</a>
-              <a class="button button-outline" href="https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/export?format=pdf" target="_blank" rel="noreferrer">View Catering Menu</a>
-              <a class="button button-outline" href="tel:+12694476178">Call 269-447-6178</a>
-              <a class="button button-outline" href="mailto:thepigsheadbbq@hotmail.com">Email for Catering</a>
+              <button class="button button-outline button-small cta-more" type="button" data-cta-more aria-expanded="false">More options</button>
+              <a class="button button-outline cta-overflow" href="https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/export?format=pdf" target="_blank" rel="noreferrer">View Catering Menu</a>
+              <a class="button button-outline cta-overflow" href="tel:+12694476178">Call 269-447-6178</a>
+              <a class="button button-outline cta-overflow" href="mailto:thepigsheadbbq@hotmail.com">Email for Catering</a>
             </p>
             <p class="download-help">We'll help build the right menu for your event size and budget.</p>
           </div>
-          <img src="images/siteimages/originalsmoker.jpg" alt="Original custom smoker used by Pigs Head BBQ" />
+          <img src="images/siteimages/originalsmoker.jpg" srcset="images/siteimages/originalsmoker.jpg 1024w" sizes="(max-width: 860px) 100vw, 42vw" width="1024" height="768" alt="Original custom smoker used by Pigs Head BBQ" />
         </div>
       </section>
     
