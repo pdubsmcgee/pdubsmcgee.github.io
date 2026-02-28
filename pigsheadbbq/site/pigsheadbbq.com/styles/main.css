@@ -257,6 +257,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+  align-items: start;
 }
 
 .feature-card {
@@ -288,6 +289,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
+  align-items: start;
 }
 
 .gallery-photo {
@@ -297,7 +299,9 @@ h2 {
 
 .gallery-photo img {
   width: 100%;
-  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #120706;
   border-radius: 10px;
 }
 
