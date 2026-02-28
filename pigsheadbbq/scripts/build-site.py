@@ -24,8 +24,9 @@ BASE_LAYOUT = """<!doctype html>
       href=\"https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;700;800&display=swap\"
       rel=\"stylesheet\"
     />
-    <link rel=\"icon\" type=\"image/png\" href=\"svgs/favicon.png\" />
-    <link rel=\"apple-touch-icon\" href=\"svgs/favicon.png\" />
+    <link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\" />
+    <link rel=\"icon\" type=\"image/png\" href=\"/svgs/favicon.png\" />
+    <link rel=\"apple-touch-icon\" href=\"/svgs/favicon.png\" />
     <link rel=\"stylesheet\" href=\"styles/main.css\" />
   </head>
   <body>
