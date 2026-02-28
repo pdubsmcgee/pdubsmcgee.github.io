@@ -3,6 +3,7 @@ import os
 import re
 from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urlparse
+from urllib.request import urlopen
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site" / "pigsheadbbq.com"
@@ -81,6 +82,8 @@ PAGES = {
 DEFAULT_MENU_SHEET_URL = (
     "https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/edit?usp=drivesdk"
 )
+MENU_PDF_FILE = Path("pdf") / "menu.pdf"
+CATERING_PDF_FILE = Path("pdf") / "catering-menu.pdf"
 
 
 def _sheet_id_from_url(url: str) -> str | None:
@@ -131,6 +134,16 @@ def _sheet_display_links(sheet_url: str, sheet_gid: str | None = None) -> dict[s
         "csv": f"{base}/export?format=csv{gid_export_query}",
         "embed": f"{base}/pubhtml?{urlencode(public_embed_query)}",
     }
+
+
+def _download_pdf_export(pdf_export_url: str, output_path: Path) -> bool:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        with urlopen(pdf_export_url, timeout=30) as response:
+            output_path.write_bytes(response.read())
+        return True
+    except Exception:
+        return False
 
 
 
@@ -185,11 +198,16 @@ def main() -> None:
         os.environ.get("TRUCKMENU_SLIDES_URL", "https://docs.google.com/presentation/d/1dfvtuHiPxRUNf7F9QpDW3CV6YNuQkk-5uFeJRGI2oRk/edit?usp=sharing")
     )
 
+    menu_pdf_downloaded = _download_pdf_export(menu_links["pdf"], SITE / MENU_PDF_FILE)
+    catering_pdf_downloaded = _download_pdf_export(catering_links["pdf"], SITE / CATERING_PDF_FILE)
+    menu_pdf_href = MENU_PDF_FILE.as_posix() if menu_pdf_downloaded else menu_links["pdf"]
+    catering_pdf_href = CATERING_PDF_FILE.as_posix() if catering_pdf_downloaded else catering_links["pdf"]
+
     for filename, page in PAGES.items():
         page_vars = {
             **page["header_vars"],
-            "MENU_HREF": menu_links["pdf"],
-            "CATERING_HREF": catering_links["pdf"],
+            "MENU_HREF": menu_pdf_href,
+            "CATERING_HREF": catering_pdf_href,
             "MENU_SHEET_HREF": menu_links["sheet"],
             "MENU_CSV_HREF": menu_links["csv"],
             "MENU_EMBED_HREF": menu_links["embed"],
