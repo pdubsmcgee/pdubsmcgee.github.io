@@ -32,6 +32,12 @@ Then pull LFS objects if needed:
 git lfs pull
 ```
 
+## Asset safety rule
+
+- Do not overwrite existing production assets with placeholders or stub files.
+- If a file already exists at a target path (especially `.pdf`, `.jpg`, `.png`, and other binary assets), treat it as canonical unless a human explicitly requests replacement.
+- When a fallback file is needed for local testing, write it to a new filename instead of replacing an existing asset.
+
 
 
 ## GitHub Pages deployment
