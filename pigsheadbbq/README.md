@@ -292,9 +292,12 @@ The homepage menu buttons open `menu.pdf` (weekly) and `catering-menu.pdf` (rela
 3. For each URL, use either:
    - a published CSV URL (`.../pub?output=csv`)
    - or an editable/share URL (`.../spreadsheets/d/<id>/edit...`)
-4. Start the app and open `menu.pdf` and `catering-menu.pdf` after logging in.
+4. In Google Sheets, publish the tab(s) used by the website so visitors can view without signing in:
+   - **File → Share → Publish to web**
+   - publish the specific tab(s), not the full workbook, when possible
+   - keep editing access restricted to trusted owner/editor accounts only
 
-The browser no longer fetches Google Sheets directly, so users cannot discover or request the Sheet URL from front-end source code.
+With that setup, `scripts/build-site.py` emits read-only `pubhtml` links for the menu viewer so the page opens immediately for guests while write access stays locked down.
 
 
 ## Google Slides menu widget setup (`webmenu` + `truckmenu`)

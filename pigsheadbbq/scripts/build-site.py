@@ -2,7 +2,7 @@
 import os
 import re
 from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, urlencode, urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 SITE = ROOT / "site" / "pigsheadbbq.com"
@@ -112,13 +112,24 @@ def _sheet_display_links(sheet_url: str, sheet_gid: str | None = None) -> dict[s
         }
 
     gid_export_query = f"&gid={gid}" if gid else ""
-    gid_preview_query = f"?gid={gid}" if gid else ""
     base = f"https://docs.google.com/spreadsheets/d/{sheet_id}"
+    public_sheet_query = {
+        "single": "true",
+    }
+    public_embed_query = {
+        "single": "true",
+        "widget": "true",
+        "headers": "false",
+    }
+    if gid:
+        public_sheet_query["gid"] = gid
+        public_embed_query["gid"] = gid
+
     return {
         "pdf": f"{base}/export?format=pdf{gid_export_query}",
-        "sheet": f"{base}/preview{gid_preview_query}",
+        "sheet": f"{base}/pubhtml?{urlencode(public_sheet_query)}",
         "csv": f"{base}/export?format=csv{gid_export_query}",
-        "embed": f"{base}/preview{gid_preview_query}",
+        "embed": f"{base}/pubhtml?{urlencode(public_embed_query)}",
     }
 
 
