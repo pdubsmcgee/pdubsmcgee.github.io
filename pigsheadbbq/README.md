@@ -292,9 +292,9 @@ The homepage menu buttons open `menu.pdf` (weekly) and `catering-menu.pdf` (rela
 3. For each URL, use either:
    - a published CSV URL (`.../pub?output=csv`)
    - or an editable/share URL (`.../spreadsheets/d/<id>/edit...`)
-4. Start the app and open `menu.pdf` and `catering-menu.pdf` after logging in.
+4. Start the app and open `menu.pdf` / `catering-menu.pdf` from the site.
 
-The browser no longer fetches Google Sheets directly, so users cannot discover or request the Sheet URL from front-end source code.
+The website now embeds first-party menu PDFs (`/menu.pdf` and `/catering-menu.pdf`) instead of embedding Google Sheets directly, so visitors can view menus immediately without Google sign-in prompts while sheet editing access remains restricted to trusted owner/editor accounts.
 
 
 ## Google Slides menu widget setup (`webmenu` + `truckmenu`)
