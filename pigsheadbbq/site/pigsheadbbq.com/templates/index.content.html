@@ -253,6 +253,10 @@
         </div>
 
         <input type="hidden" name="source_page" value="/" data-signup-source />
+        <div class="signup-honeypot" aria-hidden="true">
+          <label for="signup-website">Leave this field empty</label>
+          <input id="signup-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
 
         <div class="signup-actions">
           <button class="button button-primary" type="submit" data-signup-submit>Sign Up</button>

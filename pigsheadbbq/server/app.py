@@ -4,13 +4,15 @@ import os
 import secrets
 import time
 import json
+import ipaddress
+import socket
 from io import BytesIO, StringIO
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from pathlib import Path
 import csv
 from urllib.request import Request, urlopen
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlparse
 import re
 from datetime import datetime, timezone
 
@@ -28,6 +30,10 @@ SITE_DIR = BASE_DIR / "site" / "pigsheadbbq.com"
 SESSION_COOKIE_NAME = "phbq_session"
 RATE_LIMIT_WINDOW_SECONDS = 15 * 60
 RATE_LIMIT_MAX_ATTEMPTS = 8
+SESSION_TTL_SECONDS = 60 * 60 * 8
+SESSION_PRUNE_INTERVAL_SECONDS = 5 * 60
+SUBSCRIBE_RATE_LIMIT_WINDOW_SECONDS = 15 * 60
+SUBSCRIBE_RATE_LIMIT_MAX_ATTEMPTS = 12
 PASSWORD_HASHER = PasswordHasher()
 DEFAULT_MENU_SHEET_URL = (
     "https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/edit?usp=drivesdk"
@@ -68,6 +74,19 @@ csrf = CSRFProtect(app)
 SESSION_STORE: dict[str, SessionData] = {}
 FAILED_LOGINS_BY_IP: dict[str, deque[float]] = defaultdict(deque)
 FAILED_LOGINS_BY_USERNAME: dict[str, deque[float]] = defaultdict(deque)
+SUBSCRIBE_ATTEMPTS_BY_IP: dict[str, deque[float]] = defaultdict(deque)
+LAST_SESSION_PRUNE_AT: float = 0.0
+DEFAULT_TRUSTED_PROXY_CIDRS = ["127.0.0.1/32", "::1/128"]
+DEFAULT_DENIED_FORWARD_NETWORKS = [
+    "127.0.0.0/8",
+    "10.0.0.0/8",
+    "172.16.0.0/12",
+    "192.168.0.0/16",
+    "169.254.0.0/16",
+    "::1/128",
+    "fc00::/7",
+    "fe80::/10",
+]
 
 LOGIN_TEMPLATE = """<!doctype html>
 <html lang=\"en\">
@@ -163,6 +182,49 @@ def _is_safe_next_path(next_path: str | None) -> bool:
     return bool(next_path) and next_path.startswith("/") and not next_path.startswith("//")
 
 
+def _parse_networks(raw_value: str | None, defaults: list[str]) -> list[ipaddress._BaseNetwork]:
+    configured_values = [segment.strip() for segment in (raw_value or "").split(",") if segment.strip()]
+    source_values = configured_values or defaults
+    parsed_networks: list[ipaddress._BaseNetwork] = []
+    for cidr in source_values:
+        parsed_networks.append(ipaddress.ip_network(cidr, strict=False))
+    return parsed_networks
+
+
+def _remote_addr() -> str:
+    remote_addr = (request.remote_addr or "").strip()
+    return remote_addr or "unknown"
+
+
+def _client_ip_address() -> str:
+    remote_addr = _remote_addr()
+    try:
+        remote_ip = ipaddress.ip_address(remote_addr)
+    except ValueError:
+        return remote_addr
+
+    trusted_proxy_networks = _parse_networks(
+        os.environ.get("TRUSTED_PROXY_CIDRS"),
+        defaults=DEFAULT_TRUSTED_PROXY_CIDRS,
+    )
+    if not any(remote_ip in trusted_network for trusted_network in trusted_proxy_networks):
+        return remote_addr
+
+    forwarded_for = request.headers.get("X-Forwarded-For", "")
+    if not forwarded_for:
+        return remote_addr
+
+    first_hop = forwarded_for.split(",", maxsplit=1)[0].strip()
+    if not first_hop:
+        return remote_addr
+
+    try:
+        ipaddress.ip_address(first_hop)
+    except ValueError:
+        return remote_addr
+    return first_hop
+
+
 def _credential_is_valid(username: str, password: str) -> bool:
     expected_user = app.config["ADMIN_USERNAME"]
     expected_password_hash = app.config["ADMIN_PASSWORD_HASH"]
@@ -209,12 +271,33 @@ def _delete_session(session_id: str | None) -> None:
         SESSION_STORE.pop(session_id, None)
 
 
+def _prune_expired_sessions(now: float) -> None:
+    global LAST_SESSION_PRUNE_AT
+    if now - LAST_SESSION_PRUNE_AT < SESSION_PRUNE_INTERVAL_SECONDS:
+        return
+
+    expiration_cutoff = now - SESSION_TTL_SECONDS
+    expired_session_ids = [
+        session_id
+        for session_id, session_data in SESSION_STORE.items()
+        if session_data.created_at < expiration_cutoff
+    ]
+    for session_id in expired_session_ids:
+        SESSION_STORE.pop(session_id, None)
+    LAST_SESSION_PRUNE_AT = now
+
+
 def _authenticated_username() -> str | None:
+    now = time.time()
+    _prune_expired_sessions(now)
     session_id = request.cookies.get(SESSION_COOKIE_NAME)
     if not session_id:
         return None
     session_data = SESSION_STORE.get(session_id)
     if not session_data:
+        return None
+    if session_data.created_at < now - SESSION_TTL_SECONDS:
+        _delete_session(session_id)
         return None
     return session_data.username
 
@@ -274,10 +357,53 @@ def _store_subscription_record(record: dict[str, str]) -> None:
         output_file.write(json.dumps(record, ensure_ascii=True) + "\n")
 
 
+def _hostname_resolves_to_denied_network(hostname: str, denied_networks: list[ipaddress._BaseNetwork]) -> bool:
+    try:
+        addr_info = socket.getaddrinfo(hostname, None)
+    except socket.gaierror:
+        return True
+
+    for entry in addr_info:
+        ip_candidate = entry[4][0]
+        try:
+            ip_object = ipaddress.ip_address(ip_candidate)
+        except ValueError:
+            continue
+        if any(ip_object in denied_network for denied_network in denied_networks):
+            return True
+    return False
+
+
 def _forward_subscription_record(record: dict[str, str]) -> None:
     forward_url = os.environ.get("SUBSCRIBE_FORWARD_URL", "").strip()
     if not forward_url:
         return
+
+    parsed_forward_url = urlparse(forward_url)
+    allowed_hosts = {
+        host.strip().lower()
+        for host in os.environ.get("SUBSCRIBE_FORWARD_ALLOWED_HOSTS", "").split(",")
+        if host.strip()
+    }
+    if parsed_forward_url.scheme != "https":
+        raise ValueError("SUBSCRIBE_FORWARD_URL must use https")
+    if not parsed_forward_url.hostname:
+        raise ValueError("SUBSCRIBE_FORWARD_URL must include a hostname")
+    if allowed_hosts and parsed_forward_url.hostname.lower() not in allowed_hosts:
+        raise ValueError("SUBSCRIBE_FORWARD_URL host is not in SUBSCRIBE_FORWARD_ALLOWED_HOSTS")
+
+    denied_networks = _parse_networks(
+        os.environ.get("SUBSCRIBE_FORWARD_DENIED_CIDRS"),
+        defaults=DEFAULT_DENIED_FORWARD_NETWORKS,
+    )
+    try:
+        host_ip = ipaddress.ip_address(parsed_forward_url.hostname)
+    except ValueError:
+        host_ip = None
+    if host_ip and any(host_ip in denied_network for denied_network in denied_networks):
+        raise ValueError("SUBSCRIBE_FORWARD_URL points to a denied network")
+    if _hostname_resolves_to_denied_network(parsed_forward_url.hostname, denied_networks):
+        raise ValueError("SUBSCRIBE_FORWARD_URL resolves to a denied network")
 
     payload = json.dumps(record).encode("utf-8")
     outgoing_request = Request(
@@ -298,6 +424,16 @@ def _validate_subscription(email: str, consent: str) -> str | None:
         return "Please confirm consent before signing up."
 
     return None
+
+
+def _is_subscribe_rate_limited(ip_address: str, now: float) -> bool:
+    attempts = SUBSCRIBE_ATTEMPTS_BY_IP[ip_address]
+    _prune_attempts(attempts, now)
+    return len(attempts) >= SUBSCRIBE_RATE_LIMIT_MAX_ATTEMPTS
+
+
+def _record_subscribe_attempt(ip_address: str, now: float) -> None:
+    SUBSCRIBE_ATTEMPTS_BY_IP[ip_address].append(now)
 
 def _build_menu_pdf(menu_items: list[MenuItem], menu_title: str) -> bytes:
     buffer = BytesIO()
@@ -403,7 +539,7 @@ def login_submit() -> Response:
     username = request.form.get("username", "")
     password = request.form.get("password", "")
     next_path = request.form.get("next", "/")
-    ip_address = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",", maxsplit=1)[0].strip()
+    ip_address = _client_ip_address()
     now = time.time()
     if not _is_safe_next_path(next_path):
         next_path = "/"
@@ -440,7 +576,7 @@ def login_submit() -> Response:
         httponly=True,
         secure=_is_truthy(os.environ.get("SESSION_COOKIE_SECURE"), default=True),
         samesite="Lax",
-        max_age=60 * 60 * 8,
+        max_age=SESSION_TTL_SECONDS,
     )
     return response
 
@@ -459,12 +595,24 @@ def logout() -> Response:
 @csrf.exempt
 @app.post("/api/subscribe")
 def subscribe() -> Response:
+    now = time.time()
+    ip_address = _client_ip_address()
+    honeypot_value = (request.form.get("website") or "").strip()
+
+    if honeypot_value:
+        _record_subscribe_attempt(ip_address, now)
+        return jsonify({"ok": False, "message": "Thanks for your interest. Please try again shortly."}), 400
+
+    if _is_subscribe_rate_limited(ip_address, now):
+        return jsonify({"ok": False, "message": "Too many signup attempts. Please wait and try again."}), 429
+
     email = (request.form.get("email") or "").strip()
     consent = (request.form.get("consent") or "").strip()
     source_page = (request.form.get("source_page") or request.referrer or request.path).strip()
 
     validation_error = _validate_subscription(email=email, consent=consent)
     if validation_error:
+        _record_subscribe_attempt(ip_address, now)
         return jsonify({"ok": False, "message": validation_error}), 400
 
     record = {
@@ -478,9 +626,19 @@ def subscribe() -> Response:
         _store_subscription_record(record)
         _forward_subscription_record(record)
     except Exception:
+        _record_subscribe_attempt(ip_address, now)
         return jsonify({"ok": False, "message": "Thanks for your interest. We could not save your signup right now—please try again shortly."}), 503
 
     return jsonify({"ok": True, "message": "Thanks for signing up! We'll keep you posted with updates."})
+
+
+@app.after_request
+def add_defense_in_depth_headers(response: Response) -> Response:
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Cross-Origin-Resource-Policy", "same-origin")
+    return response
 
 
 @app.get("/")

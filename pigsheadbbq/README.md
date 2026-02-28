@@ -212,6 +212,8 @@ This avoids building campaign-sending code in the Flask app.
 4. Submit the same email twice and confirm your dedupe process behaves as intended.
 5. Run one manual newsletter send from Gmail (or import to provider UI and send there).
 
+If you route the signup form to `/api/subscribe`, the server now applies a hidden honeypot field (`website`) and per-IP signup throttling by default.
+
 ## Security configuration
 
 The login gateway now expects secure, environment-only auth configuration and includes CSRF + brute-force protection:
@@ -220,6 +222,9 @@ The login gateway now expects secure, environment-only auth configuration and in
 - `ADMIN_PASSWORD_HASH`: password hash value generated with Argon2id.
 - `SESSION_SECRET`: Flask secret key used for CSRF token signing.
 - `SESSION_COOKIE_SECURE`: defaults to secure cookies (`true`); set `false` only for local non-TLS testing.
+- `TRUSTED_PROXY_CIDRS`: optional comma-separated CIDRs allowed to supply `X-Forwarded-For` (defaults to loopback only).
+- `SUBSCRIBE_FORWARD_ALLOWED_HOSTS`: optional comma-separated HTTPS host allowlist for outbound signup forwarding.
+- `SUBSCRIBE_FORWARD_DENIED_CIDRS`: optional comma-separated CIDRs blocked for outbound signup forwarding (defaults deny localhost/private/link-local ranges).
 
 ### Generate a password hash (do not store plaintext)
 
@@ -349,6 +354,7 @@ If you add third-party scripts, embeds, APIs, or CDNs later, update the CSP in `
 ### Docker Compose deployment (`deploy/docker-compose.yml`)
 
 A Compose stack is provided to run the app and reverse proxy consistently.
+The app container is now built with pinned Python dependencies at image-build time (not installed dynamically on every startup).
 
 1. Create `deploy/.env`:
 
@@ -358,6 +364,8 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD_HASH=$argon2id$v=19$m=65536,t=3,p=4$...
 SESSION_SECRET=replace-with-a-long-random-secret
 SESSION_COOKIE_SECURE=true
+TRUSTED_PROXY_CIDRS=127.0.0.1/32,::1/128
+SUBSCRIBE_FORWARD_ALLOWED_HOSTS=hooks.zapier.com
 ```
 
 2. Start services:
