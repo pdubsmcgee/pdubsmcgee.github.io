@@ -310,6 +310,8 @@ h2 {
 
 .pit-slides {
   position: relative;
+  width: 100%;
+  max-width: 100%;
   min-height: clamp(420px, 58vw, 560px);
   aspect-ratio: 16 / 10;
   border-radius: 14px;
@@ -318,6 +320,7 @@ h2 {
 
 .pit-slide {
   margin: 0;
+  box-sizing: border-box;
   position: absolute;
   inset: 0;
   display: grid;
