@@ -69,6 +69,132 @@ ctaMoreTriggers.forEach((trigger) => {
   });
 });
 
+const pitSlideshows = document.querySelectorAll('.pit-slideshow');
+
+pitSlideshows.forEach((slideshow) => {
+  const slides = Array.from(slideshow.querySelectorAll('input[type="radio"][name="pit-slide"]'));
+  const pickerLabels = Array.from(slideshow.querySelectorAll('.pit-slide-picker label[for]'));
+  const autoplayDelayMs = 5000;
+  const interactionPauseMs = 12000;
+  const reduceMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (slides.length < 2) {
+    return;
+  }
+
+  let autoplayTimeoutId = null;
+  let resumeTimeoutId = null;
+
+  const getActiveSlideIndex = () => {
+    const checkedIndex = slides.findIndex((slideInput) => slideInput.checked);
+    return checkedIndex >= 0 ? checkedIndex : 0;
+  };
+
+  const setActiveSlide = (slideIndex) => {
+    const normalizedIndex = ((slideIndex % slides.length) + slides.length) % slides.length;
+    slides[normalizedIndex].checked = true;
+    syncPickerState();
+  };
+
+  const showNextSlide = () => {
+    setActiveSlide(getActiveSlideIndex() + 1);
+  };
+
+  const clearTimers = () => {
+    if (autoplayTimeoutId !== null) {
+      window.clearTimeout(autoplayTimeoutId);
+      autoplayTimeoutId = null;
+    }
+
+    if (resumeTimeoutId !== null) {
+      window.clearTimeout(resumeTimeoutId);
+      resumeTimeoutId = null;
+    }
+  };
+
+  const startAutoplay = (delayMs = autoplayDelayMs) => {
+    if (reduceMotionQuery.matches) {
+      return;
+    }
+
+    if (autoplayTimeoutId !== null) {
+      window.clearTimeout(autoplayTimeoutId);
+    }
+
+    autoplayTimeoutId = window.setTimeout(() => {
+      showNextSlide();
+      startAutoplay(autoplayDelayMs);
+    }, delayMs);
+  };
+
+  const deferAutoplayAfterInteraction = () => {
+    clearTimers();
+    startAutoplay(interactionPauseMs);
+  };
+
+  const syncPickerState = () => {
+    const activeSlideId = slides[getActiveSlideIndex()]?.id;
+
+    pickerLabels.forEach((label) => {
+      const labelTarget = label.getAttribute('for');
+      const isActive = labelTarget === activeSlideId;
+      label.setAttribute('aria-selected', String(isActive));
+      label.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+  };
+
+  pickerLabels.forEach((label) => {
+    label.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') {
+        return;
+      }
+
+      const targetSlideId = label.getAttribute('for');
+      if (!targetSlideId) {
+        return;
+      }
+
+      event.preventDefault();
+      const targetSlide = document.getElementById(targetSlideId);
+      if (targetSlide instanceof HTMLInputElement) {
+        targetSlide.checked = true;
+        syncPickerState();
+        deferAutoplayAfterInteraction();
+      }
+    });
+
+    label.addEventListener('click', () => {
+      syncPickerState();
+      deferAutoplayAfterInteraction();
+    });
+  });
+
+  slides.forEach((slideInput) => {
+    slideInput.addEventListener('change', syncPickerState);
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      clearTimers();
+      return;
+    }
+
+    startAutoplay();
+  });
+
+  reduceMotionQuery.addEventListener('change', () => {
+    if (reduceMotionQuery.matches) {
+      clearTimers();
+      return;
+    }
+
+    startAutoplay();
+  });
+
+  syncPickerState();
+  startAutoplay();
+});
+
 const widgetTriggers = document.querySelectorAll('[data-menu-widget-trigger]');
 
 widgetTriggers.forEach((trigger) => {
