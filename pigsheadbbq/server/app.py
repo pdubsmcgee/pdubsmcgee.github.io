@@ -11,6 +11,7 @@ from collections import defaultdict, deque
 from dataclasses import dataclass
 from pathlib import Path
 import csv
+from urllib.error import URLError
 from urllib.request import Request, urlopen
 from urllib.parse import urlencode, urlparse
 import re
@@ -34,6 +35,8 @@ SESSION_TTL_SECONDS = 60 * 60 * 8
 SESSION_PRUNE_INTERVAL_SECONDS = 5 * 60
 SUBSCRIBE_RATE_LIMIT_WINDOW_SECONDS = 15 * 60
 SUBSCRIBE_RATE_LIMIT_MAX_ATTEMPTS = 12
+SUBSCRIBE_GLOBAL_BURST_WINDOW_SECONDS = 60
+SUBSCRIBE_GLOBAL_BURST_MAX_ATTEMPTS = 60
 PASSWORD_HASHER = PasswordHasher()
 DEFAULT_MENU_SHEET_URL = (
     "https://docs.google.com/spreadsheets/d/1dR1oA7Aox5IvtsD9qc5xaRYf-tK11IAY-8xcFkMn0LY/edit?usp=drivesdk"
@@ -64,6 +67,34 @@ def _required_env(name: str) -> str:
     return value
 
 
+def _env_int(name: str, default: int, minimum: int | None = None, maximum: int | None = None) -> int:
+    raw_value = os.environ.get(name)
+    if raw_value is None or not raw_value.strip():
+        value = default
+    else:
+        value = int(raw_value)
+
+    if minimum is not None:
+        value = max(minimum, value)
+    if maximum is not None:
+        value = min(maximum, value)
+    return value
+
+
+def _env_float(name: str, default: float, minimum: float | None = None, maximum: float | None = None) -> float:
+    raw_value = os.environ.get(name)
+    if raw_value is None or not raw_value.strip():
+        value = default
+    else:
+        value = float(raw_value)
+
+    if minimum is not None:
+        value = max(minimum, value)
+    if maximum is not None:
+        value = min(maximum, value)
+    return value
+
+
 app = Flask(__name__)
 app.config["ADMIN_USERNAME"] = _required_env("ADMIN_USERNAME")
 app.config["ADMIN_PASSWORD_HASH"] = _required_env("ADMIN_PASSWORD_HASH")
@@ -75,6 +106,7 @@ SESSION_STORE: dict[str, SessionData] = {}
 FAILED_LOGINS_BY_IP: dict[str, deque[float]] = defaultdict(deque)
 FAILED_LOGINS_BY_USERNAME: dict[str, deque[float]] = defaultdict(deque)
 SUBSCRIBE_ATTEMPTS_BY_IP: dict[str, deque[float]] = defaultdict(deque)
+SUBSCRIBE_GLOBAL_ATTEMPTS: deque[float] = deque()
 LAST_SESSION_PRUNE_AT: float = 0.0
 DEFAULT_TRUSTED_PROXY_CIDRS = ["127.0.0.1/32", "::1/128"]
 DEFAULT_DENIED_FORWARD_NETWORKS = [
@@ -410,6 +442,10 @@ def _forward_subscription_record(record: dict[str, str]) -> None:
     if _hostname_resolves_to_denied_network(parsed_forward_url.hostname, denied_networks):
         raise ValueError("SUBSCRIBE_FORWARD_URL resolves to a denied network")
 
+    timeout_budget_seconds = _env_float("SUBSCRIBE_FORWARD_TIMEOUT_SECONDS", 6.0, minimum=1.0, maximum=30.0)
+    max_retries = _env_int("SUBSCRIBE_FORWARD_MAX_RETRIES", 2, minimum=0, maximum=5)
+    backoff_seconds = _env_float("SUBSCRIBE_FORWARD_RETRY_BACKOFF_SECONDS", 0.4, minimum=0.0, maximum=5.0)
+
     payload = json.dumps(record).encode("utf-8")
     outgoing_request = Request(
         forward_url,
@@ -417,8 +453,30 @@ def _forward_subscription_record(record: dict[str, str]) -> None:
         headers={"Content-Type": "application/json", "Accept": "application/json"},
         method="POST",
     )
-    with urlopen(outgoing_request, timeout=8):
-        return
+
+    deadline = time.monotonic() + timeout_budget_seconds
+    final_error: Exception | None = None
+    for attempt in range(max_retries + 1):
+        remaining_seconds = deadline - time.monotonic()
+        if remaining_seconds <= 0:
+            break
+
+        try:
+            with urlopen(outgoing_request, timeout=remaining_seconds):
+                return
+        except (TimeoutError, URLError, OSError) as exc:
+            final_error = exc
+            if attempt >= max_retries:
+                break
+
+            sleep_seconds = min(backoff_seconds * (2**attempt), max(0.0, deadline - time.monotonic()))
+            if sleep_seconds <= 0:
+                break
+            time.sleep(sleep_seconds)
+
+    if final_error is not None:
+        raise final_error
+    raise TimeoutError("SUBSCRIBE_FORWARD_TIMEOUT_SECONDS budget exceeded")
 
 
 def _validate_subscription(email: str, consent: str) -> str | None:
@@ -439,6 +497,68 @@ def _is_subscribe_rate_limited(ip_address: str, now: float) -> bool:
 
 def _record_subscribe_attempt(ip_address: str, now: float) -> None:
     SUBSCRIBE_ATTEMPTS_BY_IP[ip_address].append(now)
+
+
+def _subscribe_global_window_seconds() -> int:
+    return _env_int("SUBSCRIBE_GLOBAL_BURST_WINDOW_SECONDS", SUBSCRIBE_GLOBAL_BURST_WINDOW_SECONDS, minimum=1)
+
+
+def _subscribe_global_max_attempts() -> int:
+    return _env_int("SUBSCRIBE_GLOBAL_BURST_MAX_ATTEMPTS", SUBSCRIBE_GLOBAL_BURST_MAX_ATTEMPTS, minimum=1)
+
+
+def _prune_subscribe_global_attempts(now: float) -> None:
+    cutoff = now - _subscribe_global_window_seconds()
+    while SUBSCRIBE_GLOBAL_ATTEMPTS and SUBSCRIBE_GLOBAL_ATTEMPTS[0] < cutoff:
+        SUBSCRIBE_GLOBAL_ATTEMPTS.popleft()
+
+
+def _record_subscribe_global_attempt(now: float) -> None:
+    SUBSCRIBE_GLOBAL_ATTEMPTS.append(now)
+
+
+def _is_subscribe_global_rate_limited(now: float) -> bool:
+    _prune_subscribe_global_attempts(now)
+    return len(SUBSCRIBE_GLOBAL_ATTEMPTS) >= _subscribe_global_max_attempts()
+
+
+def _configured_subscribe_origin_hosts() -> set[str]:
+    raw_origins = os.environ.get("SUBSCRIBE_ALLOWED_ORIGINS", "")
+    if not raw_origins.strip():
+        return set()
+
+    allowed_hosts: set[str] = set()
+    for candidate in (segment.strip() for segment in raw_origins.split(",")):
+        if not candidate:
+            continue
+        parsed_candidate = urlparse(candidate)
+        if parsed_candidate.hostname:
+            allowed_hosts.add(parsed_candidate.hostname.lower())
+            continue
+        allowed_hosts.add(candidate.lower())
+    return allowed_hosts
+
+
+def _request_origin_host() -> str | None:
+    for header_name in ("Origin", "Referer"):
+        header_value = (request.headers.get(header_name) or "").strip()
+        if not header_value:
+            continue
+        parsed_value = urlparse(header_value)
+        if parsed_value.hostname:
+            return parsed_value.hostname.lower()
+    return None
+
+
+def _is_subscribe_request_origin_allowed() -> bool:
+    allowed_hosts = _configured_subscribe_origin_hosts()
+    if not allowed_hosts:
+        return True
+
+    request_origin_host = _request_origin_host()
+    if not request_origin_host:
+        return False
+    return request_origin_host in allowed_hosts
 
 def _build_menu_pdf(menu_items: list[MenuItem], menu_title: str) -> bytes:
     buffer = BytesIO()
@@ -602,8 +722,16 @@ def logout() -> Response:
 def subscribe() -> Response:
     now = time.time()
     ip_address = _client_ip_address()
-    honeypot_value = (request.form.get("website") or "").strip()
+    _record_subscribe_global_attempt(now)
 
+    if _is_subscribe_global_rate_limited(now):
+        return jsonify({"ok": False, "message": "Signup is temporarily busy. Please wait and try again."}), 429
+
+    if not _is_subscribe_request_origin_allowed():
+        _record_subscribe_attempt(ip_address, now)
+        return jsonify({"ok": False, "message": "Signup request origin is not allowed."}), 403
+
+    honeypot_value = (request.form.get("website") or "").strip()
     if honeypot_value:
         _record_subscribe_attempt(ip_address, now)
         return jsonify({"ok": False, "message": "Thanks for your interest. Please try again shortly."}), 400
