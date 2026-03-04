@@ -223,8 +223,16 @@ The login gateway now expects secure, environment-only auth configuration and in
 - `SESSION_SECRET`: Flask secret key used for CSRF token signing.
 - `SESSION_COOKIE_SECURE`: defaults to secure cookies (`true`); set `false` only for local non-TLS testing.
 - `TRUSTED_PROXY_CIDRS`: optional comma-separated CIDRs allowed to supply `X-Forwarded-For` (defaults to loopback only).
+- `SUBSCRIBE_ALLOWED_ORIGINS`: optional comma-separated origin/referer allowlist for `/api/subscribe` (accepts full origins like `https://pigsheadbbq.com` or bare hostnames). Requests with missing/mismatched `Origin`/`Referer` are rejected with HTTP 403 when this is set.
+- `SUBSCRIBE_GLOBAL_BURST_WINDOW_SECONDS`: global sliding-window length for all signup attempts across the process (default `60`).
+- `SUBSCRIBE_GLOBAL_BURST_MAX_ATTEMPTS`: max total signup attempts allowed in the global burst window before HTTP 429 (default `60`).
 - `SUBSCRIBE_FORWARD_ALLOWED_HOSTS`: optional comma-separated HTTPS host allowlist for outbound signup forwarding.
 - `SUBSCRIBE_FORWARD_DENIED_CIDRS`: optional comma-separated CIDRs blocked for outbound signup forwarding (defaults deny localhost/private/link-local ranges).
+- `SUBSCRIBE_FORWARD_TIMEOUT_SECONDS`: total timeout budget for outbound webhook forwarding across retries (default `6`, clamped to `1-30`).
+- `SUBSCRIBE_FORWARD_MAX_RETRIES`: retry count for outbound forwarding failures (default `2`, max `5`).
+- `SUBSCRIBE_FORWARD_RETRY_BACKOFF_SECONDS`: exponential backoff base delay between webhook retry attempts (default `0.4`, max `5`).
+
+When `SUBSCRIBE_FORWARD_URL` is enabled, forwarding now uses bounded retries with exponential backoff under the strict timeout budget so a failing destination cannot tie up workers indefinitely.
 
 ### Generate a password hash (do not store plaintext)
 
